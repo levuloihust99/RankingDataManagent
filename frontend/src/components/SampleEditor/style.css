@@ -1,0 +1,63 @@
+.sample-editor-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    padding: 20px 0 10px 0;
+}
+
+.sample-editor-main-area {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.sample-editor-output-item {
+    border-radius: 8px;
+}
+
+.sample-editor-back-data {
+    color: rgb(63, 63, 63);
+}
+
+.sample-editor-back-data:hover {
+    color: rgb(0, 158, 247);
+    cursor: pointer;
+}
+
+.sample-editor-output-container {
+    height: 100%;
+    width: 40%;
+    overflow-y: auto;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.sample-editor-input-container {
+    flex-grow: 1;
+    /* width: 60%; */
+    /* box-shadow: 0px 0px 20px rgba(34, 36, 38, 0.15); */
+}
+
+.sample-editor-input-area {
+    resize: none;
+    overflow-y: auto;
+    outline: none;
+    border: 0;
+    height: 100%;
+    width: 100%;
+    text-align: justify;
+    font-family: inherit;
+    color: inherit;
+}
+
+/* .sample-editor-input-area::-webkit-scrollbar {
+    display: none;
+} */

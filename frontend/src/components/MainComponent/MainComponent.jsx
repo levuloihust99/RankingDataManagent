@@ -7,6 +7,9 @@ import { DataTable } from "../DataTable"
 import { Pagination } from '../Pagination'
 import "./style.css"
 import { ErrorPage } from '../ErrorPage/ErrorPage'
+import { SampleEditor } from '../SampleEditor'
+import { AppContext } from '../../context'
+import { MainComponentContext } from './context'
 
 async function queryData(pageId) {
     const queryArgs = new URLSearchParams({ pageNum: pageId, recordsPerPage })
@@ -36,19 +39,23 @@ export async function dataLoader({ params }) {
 
 export const MainComponent = ({ children }) => {
     const { data, pageId } = useLoaderData()
-    const [isLoading, setIsLoading] = React.useState(true)
+    const [totalPageLoad, setTotalPageLoad] = React.useState(true)
     const [totalPage, setTotalPage] = React.useState(0)
+    const { pushed } = React.useContext(AppContext)
+    const [onEdit, setOnEdit] = React.useState(-1)
 
     React.useEffect(() => {
+        console.log("Effect total_data runs")
         fetch(urlJoin(BACKEND_URL, "total_data"))
             .then(async (resp) => { return await resp.json() })
             .then(({ count }) => {
-                setIsLoading(false)
-                setTotalPage(count)
+                const total = Math.ceil(count / recordsPerPage)
+                setTotalPageLoad(false)
+                setTotalPage(total)
             })
     }, [])
 
-    if (isLoading === true) return (
+    if (totalPageLoad === true) return (
         <Modal dimmer="blurring" open={true} closeIcon={null}>
             <Loader active size="large">
                 Loading
@@ -61,7 +68,7 @@ export const MainComponent = ({ children }) => {
     }
 
     return (
-        <>
+        <div style={{position: "relative", display: "flex", flexDirection: "column", height: "100%", flexGrow: 1}}>
             <Pagination pageId={pageId} totalPage={totalPage} />
             <React.Suspense
                 fallback={(
@@ -77,15 +84,52 @@ export const MainComponent = ({ children }) => {
                 >
                     {(dataset) => {
                         return (
-                            <div
-                                className="content-box"
-                            >
-                                <DataTable dataset={dataset} />
-                            </div>
+                            <MainComponentContext.Provider value={{setRowOnEdit: setOnEdit}}>
+                                <div
+                                    className="content-box"
+                                    style={{
+                                        display: onEdit > -1 ? "none" : "block"
+                                    }}
+                                >
+                                    <DataTable dataset={dataset} />
+                                </div>
+                                {(onEdit > -1) && (
+                                    <>
+                                        <Backdrop />
+                                        <SampleEditor
+                                            style={{
+                                                top: 0,
+                                                bottom: 0,
+                                                right: 0,
+                                                left: 0
+                                            }}
+                                            input={dataset[onEdit].input}
+                                            outputs={dataset[onEdit].outputs}
+                                            metadata={dataset[onEdit].metadata}
+                                        />
+                                    </>
+                                )}
+                            </MainComponentContext.Provider>
                         )
                     }}
                 </Await>
             </React.Suspense>
-        </>
+        </div>
+    )
+}
+
+const Backdrop = () => {
+    return (
+        <div
+            style={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: "white"
+            }}
+        >
+        </div>
     )
 }

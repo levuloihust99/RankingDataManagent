@@ -2,12 +2,13 @@ import React from 'react'
 import { Icon, Button } from 'semantic-ui-react'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { MainComponentContext } from '../MainComponent/context'
 import "./style.css"
+import { RowContext } from '../DataTable/context'
 
-const LocalContext = React.createContext(null)
-
-const LocalNavigator = ({ index, total }) => {
-    const { setIndex } = React.useContext(LocalContext)
+const LocalNavigator = ({ index, total, setIndex }) => {
+    const { setRowOnEdit } = React.useContext(MainComponentContext)
+    const { rowIdx } = React.useContext(RowContext)
 
     const handleClickPrevious = (event) => {
         if (index > 1) setIndex(index - 1)
@@ -59,6 +60,7 @@ const LocalNavigator = ({ index, total }) => {
                     className="edit-icon"
                     icon={icon({name: "pen-to-square"})}
                     style={{float: "right"}}
+                    onClick={(e) => setRowOnEdit(rowIdx)}
                 />
             </div>
         </div>
@@ -70,8 +72,8 @@ export const MultiContentBox = ({ contents }) => {
     const content = contents[index - 1]
 
     return (
-        <LocalContext.Provider value={{setIndex}}>
-            <LocalNavigator index={index} total={contents.length} />
+        <>
+            <LocalNavigator setIndex={setIndex} index={index} total={contents.length} />
             <div
                 className="response-content"
                 style={{
@@ -80,6 +82,6 @@ export const MultiContentBox = ({ contents }) => {
             >
                 {content}
             </div>
-        </LocalContext.Provider>
+        </>
     )
 }

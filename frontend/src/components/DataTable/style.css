@@ -51,7 +51,7 @@
     padding: 8px;
     background-color: rgb(73, 160, 154);
     color: white;
-    line-height: 2.5;
+    line-height: 1.5;
 }
 
 .data-table tr:last-child td:first-child {

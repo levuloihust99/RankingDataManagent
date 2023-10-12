@@ -29,9 +29,6 @@ const router = createBrowserRouter([
                 path: "/page/:pageId",
                 loader: dataLoader,
                 element: <MainComponent />
-            },
-            {
-                path: "/sample/:sampleId"
             }
         ]
     }
@@ -50,8 +47,8 @@ export const App = () => {
     const [state, dispatch] = React.useReducer(reducer, { pushed: true, activeItem: "database" })
     const { pushed, activeItem } = state
     return (
-        <AppContext.Provider value={{ dispatch }}>
-            <div id="main-content"
+        <AppContext.Provider value={{ dispatch, pushed }}>
+            <div id="app"
                 style={{ width: pushed ? "100vw" : "calc(100vw + 250px)" }}
             >
                 <NavBar
@@ -59,11 +56,7 @@ export const App = () => {
                     setActiveItem={(item) => dispatch({ type: "SET_ACTIVE_ITEM", activeItem: item })}
                 />
                 <div
-                    style={{
-                        position: "relative",
-                        flexGrow: 1,
-                        overflow: "scroll"
-                    }}
+                    id="main-content"
                 >
                     <TitleBar />
                     <RouterProvider router={router}>
