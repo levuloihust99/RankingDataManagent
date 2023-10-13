@@ -1,7 +1,7 @@
 export const datasetReducer = (state, action) => {
     switch (action.type) {
-        case "SWAP_OUTPUTS":
-            return swapOutputs(state, action)
+        case "MOVE_ITEM":
+            return moveItem(state, action)
         case "MUTATE_INPUT":
             return mutateInput(state, action)
         case "MUTATE_OUTPUT":
@@ -10,23 +10,33 @@ export const datasetReducer = (state, action) => {
             return mutateMetadata(state, action)
         case "SET_ACTIVE_ROW":
             return { ...state, activeRow: action.activeRow }
+        case "UPDATE_DATASET":
+            return { ...state, dataset: action.dataset }
         default:
             return state
     }
 }
 
-function swapOutputs(state, action) {
+function moveItem(state, action) {
     // params: rowIdx, aIdx, bIdx
-    const { outputs, ...other } = state.dataset[action.rowIdx]
-    const nextOutputs = []
-    for (let i = 0; i < outputs.length; i++) {
-        if (i === action.aIdx) {
-            nextOutputs.push(outputs[action.bIdx])
-        } else if (i === action.bIdx) {
-            nextOutputs.push(outputs[action.aIdx])
-        } else {
-            nextOutputs.push(outputs[i])
-        }
+    // move item from aIdx to bIdx
+    const { rowIdx, aIdx, bIdx } = action
+    const { outputs, ...other } = state.dataset[rowIdx]
+    let nextOutputs = []
+    if (aIdx < bIdx) {
+        nextOutputs = [
+            ...outputs.slice(0, aIdx),
+            ...outputs.slice(aIdx + 1, bIdx + 1),
+            outputs[aIdx],
+            ...outputs.slice(bIdx + 1)
+        ]
+    } else {
+        nextOutputs = [
+            ...outputs.slice(0, bIdx),
+            outputs[aIdx],
+            ...outputs.slice(bIdx, aIdx),
+            ...outputs.slice(aIdx + 1)
+        ]
     }
     return {
         ...state,

@@ -51,7 +51,6 @@ export const DndCard = () => {
 
 const CardItem = ({ content, idx }) => {
     const ref = React.useRef()
-
     const {
         containerRef, state: { placeholderIdx } , dispatch: cardDispatch
     } = React.useContext(CardContext)
@@ -60,7 +59,6 @@ const CardItem = ({ content, idx }) => {
     React.useEffect(() => {
         const element = ref.current
         element.onmousedown = function (event) {
-            console.log("Inside:", idx)
             const elementRect = element.getBoundingClientRect()
             element.style.position = 'fixed';
             element.style.zIndex = 1000;
@@ -130,7 +128,7 @@ const CardItem = ({ content, idx }) => {
                 element.onmouseup = null;
                 if (idx !== placeholderIdx) {
                     datasetDispatch({
-                        type: "SWAP_OUTPUTS",
+                        type: "MOVE_ITEM",
                         rowIdx: activeRow,
                         aIdx: idx,
                         bIdx: placeholderIdx

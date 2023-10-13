@@ -89,6 +89,12 @@ export const MainComponent = () => {
 
 const DataProvider = ({ dataset }) => {
     const [state, dispatch] = React.useReducer(datasetReducer, { dataset, activeRow: -1 })
+    React.useEffect(() => {
+        dispatch({
+            type: "UPDATE_DATASET",
+            dataset
+        })
+    }, [dataset])
     return (
         <DatasetContext.Provider
             value={{
