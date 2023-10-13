@@ -1,2 +1,2 @@
 import React from 'react'
-export const MainComponentContext = React.createContext(null)
+export const DatasetContext = React.createContext(null)

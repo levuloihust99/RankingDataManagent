@@ -1,0 +1,28 @@
+.dnd-card-item {
+    padding: 8px;
+    border-radius: 8px;
+    min-height: 20px;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px 0px, rgba(9, 30, 66, 0.31) 0px 0px 1px 1px;
+    background-color: white;
+}
+
+.dnd-card-item:hover {
+    background-color: #F1F2F4;
+    cursor: pointer;
+}
+
+.dnd-card-item.place-holder {
+    padding: 8px;
+    border-radius: 8px;
+    min-height: 20px;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px 0px, rgba(9, 30, 66, 0.31) 0px 0px 1px 1px;
+    background-color: #cecece;
+}
+
+.dnd-card-container {
+    padding: 10px 10px 10px 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    row-gap: 10px;
+}

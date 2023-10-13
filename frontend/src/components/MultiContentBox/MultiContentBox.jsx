@@ -2,12 +2,12 @@ import React from 'react'
 import { Icon, Button } from 'semantic-ui-react'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MainComponentContext } from '../MainComponent/context'
+import { DatasetContext } from '../MainComponent/context'
 import "./style.css"
 import { RowContext } from '../DataTable/context'
 
 const LocalNavigator = ({ index, total, setIndex }) => {
-    const { setRowOnEdit } = React.useContext(MainComponentContext)
+    const { dispatch } = React.useContext(DatasetContext)
     const { rowIdx } = React.useContext(RowContext)
 
     const handleClickPrevious = (event) => {
@@ -60,7 +60,10 @@ const LocalNavigator = ({ index, total, setIndex }) => {
                     className="edit-icon"
                     icon={icon({name: "pen-to-square"})}
                     style={{float: "right"}}
-                    onClick={(e) => setRowOnEdit(rowIdx)}
+                    onClick={(e) => dispatch({
+                        type: "SET_ACTIVE_ROW",
+                        activeRow: rowIdx
+                    })}
                 />
             </div>
         </div>

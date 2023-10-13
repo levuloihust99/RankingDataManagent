@@ -1,3 +1,5 @@
+import React from 'react'
+import { DatasetContext } from "../MainComponent/context"
 import { MultiContentBox } from "../MultiContentBox"
 import { RowContext } from "./context"
 import "./style.css"
@@ -17,7 +19,8 @@ const TableRow = ({ input, outputs }) => {
     )
 }
 
-export const DataTable = ({ dataset }) => {
+export const DataTable = () => {
+    const { state: { dataset } } = React.useContext(DatasetContext)
     return (
         <table
             className="data-table"

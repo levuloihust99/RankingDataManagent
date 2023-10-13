@@ -1,15 +1,16 @@
 import React from 'react'
+import { v4 as uuidv4 } from 'uuid';
 import { Modal, Loader } from "semantic-ui-react"
 import { useLoaderData, defer, Await } from "react-router-dom"
 import { BACKEND_URL, recordsPerPage } from "../../lib/constant"
 import { urlJoin } from "../../lib/utils"
 import { DataTable } from "../DataTable"
 import { Pagination } from '../Pagination'
-import "./style.css"
 import { ErrorPage } from '../ErrorPage/ErrorPage'
 import { SampleEditor } from '../SampleEditor'
-import { AppContext } from '../../context'
-import { MainComponentContext } from './context'
+import { DatasetContext } from './context'
+import { datasetReducer } from './reducer';
+import "./style.css"
 
 async function queryData(pageId) {
     const queryArgs = new URLSearchParams({ pageNum: pageId, recordsPerPage })
@@ -17,7 +18,7 @@ async function queryData(pageId) {
     try {
         const response = await fetch(endpoint)
         const { data } = await response.json()
-        return data
+        return data.map(item => ({ ...item, outputs: item.outputs.map((out) => ({ ...out, id: uuidv4() })) }))
     } catch (e) {
         throw new Response("", {
             status: 500,
@@ -37,15 +38,12 @@ export async function dataLoader({ params }) {
     return defer({ data: queryData(params.pageId), pageId })
 }
 
-export const MainComponent = ({ children }) => {
+export const MainComponent = () => {
     const { data, pageId } = useLoaderData()
     const [totalPageLoad, setTotalPageLoad] = React.useState(true)
     const [totalPage, setTotalPage] = React.useState(0)
-    const { pushed } = React.useContext(AppContext)
-    const [onEdit, setOnEdit] = React.useState(-1)
 
     React.useEffect(() => {
-        console.log("Effect total_data runs")
         fetch(urlJoin(BACKEND_URL, "total_data"))
             .then(async (resp) => { return await resp.json() })
             .then(({ count }) => {
@@ -68,7 +66,7 @@ export const MainComponent = ({ children }) => {
     }
 
     return (
-        <div style={{position: "relative", display: "flex", flexDirection: "column", height: "100%", flexGrow: 1}}>
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%", flexGrow: 1 }}>
             <Pagination pageId={pageId} totalPage={totalPage} />
             <React.Suspense
                 fallback={(
@@ -82,39 +80,44 @@ export const MainComponent = ({ children }) => {
                 <Await
                     resolve={data}
                 >
-                    {(dataset) => {
-                        return (
-                            <MainComponentContext.Provider value={{setRowOnEdit: setOnEdit}}>
-                                <div
-                                    className="content-box"
-                                    style={{
-                                        display: onEdit > -1 ? "none" : "block"
-                                    }}
-                                >
-                                    <DataTable dataset={dataset} />
-                                </div>
-                                {(onEdit > -1) && (
-                                    <>
-                                        <Backdrop />
-                                        <SampleEditor
-                                            style={{
-                                                top: 0,
-                                                bottom: 0,
-                                                right: 0,
-                                                left: 0
-                                            }}
-                                            input={dataset[onEdit].input}
-                                            outputs={dataset[onEdit].outputs}
-                                            metadata={dataset[onEdit].metadata}
-                                        />
-                                    </>
-                                )}
-                            </MainComponentContext.Provider>
-                        )
-                    }}
+                    {(dataset) => <DataProvider dataset={dataset} />}
                 </Await>
             </React.Suspense>
         </div>
+    )
+}
+
+const DataProvider = ({ dataset }) => {
+    const [state, dispatch] = React.useReducer(datasetReducer, { dataset, activeRow: -1 })
+    return (
+        <DatasetContext.Provider
+            value={{
+                state,
+                dispatch
+            }}
+        >
+            <div
+                className="content-box"
+                style={{
+                    display: state.activeRow > -1 ? "none" : "block"
+                }}
+            >
+                <DataTable />
+            </div>
+            {(state.activeRow > -1) && (
+                <>
+                    <Backdrop />
+                    <SampleEditor
+                        style={{
+                            top: 0,
+                            bottom: 0,
+                            right: 0,
+                            left: 0
+                        }}
+                    />
+                </>
+            )}
+        </DatasetContext.Provider>
     )
 }
 

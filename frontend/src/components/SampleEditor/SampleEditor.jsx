@@ -2,14 +2,16 @@ import React from "react"
 import { CodeBlock, dracula, github } from "react-code-blocks";
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MainComponentContext } from "../MainComponent/context";
+import { DatasetContext } from "../MainComponent/context";
+import { DndCard } from "./DndCard";
 import "./style.css"
 
-export const SampleEditor = ({ input, outputs, metadata }) => {
-    const { setRowOnEdit } = React.useContext(MainComponentContext)
+export const SampleEditor = () => {
+    const { state: { dataset, activeRow }, dispatch } = React.useContext(DatasetContext)
+    const { input, metadata } = dataset[activeRow]
     const [liveMetadata, setLiveMetadata] = React.useState(metadata)
     const [liveInput, setLiveInput] = React.useState(input)
-    const [divHeight, setDivHeight] = React.useState("auto")
+    const [textAreaHeight, setTextAreaHeight] = React.useState("auto")
     const textareaRef = React.useRef()
 
     React.useEffect(() => {
@@ -19,19 +21,13 @@ export const SampleEditor = ({ input, outputs, metadata }) => {
     React.useEffect(() => {
         setLiveInput(input)
         const fullScrollHeight = textareaRef.current.scrollHeight
-        setDivHeight(`${fullScrollHeight + 20}px`)
+        setTextAreaHeight(`${fullScrollHeight + 20}px`)
     }, [input])
 
     const renderOutputContainer = () => {
         return (
             <div className="sample-editor-output-container">
-                {outputs.map((item, idx) => {
-                    return (
-                        <div className="sample-editor-output-item">
-                            {item.content}
-                        </div>
-                    )
-                })}
+                <DndCard />
             </div>
         )
     }
@@ -42,7 +38,7 @@ export const SampleEditor = ({ input, outputs, metadata }) => {
                 className="sample-editor-input-container"
                 style={{
                     padding: "10px 10px 10px 20px",
-                    height: divHeight
+                    height: textAreaHeight
                 }}
             >
                 <textarea
@@ -72,7 +68,10 @@ export const SampleEditor = ({ input, outputs, metadata }) => {
             >
                 <div
                     className="sample-editor-back-data"
-                    onClick={(e) => setRowOnEdit(-1)}
+                    onClick={(e) => dispatch({
+                        type: "SET_ACTIVE_ROW",
+                        activeRow: -1
+                    })}
                     style={{
                         paddingLeft: "20px",
                         fontSize: "1.25em"

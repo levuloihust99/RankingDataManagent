@@ -49,8 +49,8 @@ export const Pagination = ({ pageId, totalPage }) => {
                     }
                 } else { // greater than
                     prePart = []
-                    for (let i = 0; i < expectedPreLen; i++) {
-                        prePart.push({ num: pageId - expectedPreLen + i })
+                    for (let i = 0; i < expectedPreLen - 2; i++) {
+                        prePart.push({ num: pageId - expectedPreLen + i + 2 })
                     }
                     prePart = [
                         { num: 1, active: false },
