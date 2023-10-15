@@ -1,6 +1,6 @@
 import React from 'react'
+import { DatasetContext } from '../../context'
 import "./style.css"
-import { DatasetContext } from '../../MainComponent/context'
 
 const CardContext = React.createContext(null)
 
@@ -137,78 +137,6 @@ const CardItem = ({ content, idx }) => {
             };
         };
     }, [idx])
-
-    // React.useEffect(() => {
-    //     const element = ref.current
-    //     element.onmousedown = function (event) {
-    //         const elementRect = element.getBoundingClientRect()
-    //         element.style.position = 'fixed';
-    //         element.style.zIndex = 1000;
-    //         element.style.width = elementRect.width + "px"
-    //         element.style.transform = "rotate(3deg)"
-    //         const deltaX = event.pageX - elementRect.x
-    //         const deltaY = event.pageY - elementRect.y
-
-    //         function moveAt(pageX, pageY) {
-    //             element.style.left = pageX - deltaX + 'px';
-    //             element.style.top = pageY - deltaY + 'px';
-    //         }
-    //         moveAt(event.pageX, event.pageY);
-
-    //         document.body.append(element);
-    //         console.log(element)
-    //         cardDispatch({
-    //             type: "SET_PLACEHOLDER",
-    //             placeholderIdx: idx,
-    //             placeholderHeight: elementRect.height + "px"
-    //         })
-
-    //         function onMouseMove(event) {
-    //             moveAt(event.pageX, event.pageY);
-    //             let childIdx = 0
-    //             for (const child of containerRef.current.children) {
-    //                 const childRect = child.getBoundingClientRect()
-    //                 const dragCenter = element.getBoundingClientRect().y + element.getBoundingClientRect().height / 2
-    //                 if (dragCenter > childRect.y && dragCenter < childRect.y + childRect.height) {
-    //                     if (placeholderIdx !== childIdx) {
-    //                         if (
-    //                             (placeholderIdx < childIdx && dragCenter > childRect.y + childRect.height / 2) ||
-    //                             (placeholderIdx > childIdx && dragCenter < childRect.y + childRect.height / 2)
-    //                         ) {
-    //                             datasetDispatch({
-    //                                 type: "SWAP_OUTPUTS",
-    //                                 rowIdx: activeRow,
-    //                                 aIdx: placeholderIdx,
-    //                                 bIdx: childIdx
-    //                             })
-    //                             cardDispatch({
-    //                                 type: "SET_PLACEHOLDER_IDX",
-    //                                 placeholderIdx: childIdx
-    //                             })
-    //                         }
-    //                     }
-    //                     break
-    //                 } else {
-    //                     childIdx += 1
-    //                 }
-    //             }
-    //         }
-    //         document.addEventListener('mousemove', onMouseMove);
-
-    //         element.onmouseup = function () {
-    //             document.removeEventListener('mousemove', onMouseMove);
-    //             containerRef.current.replaceChild(ref.current, containerRef.current.children[placeholderIdx])
-    //             ref.current.style.position = "static"
-    //             ref.current.style.width = "auto"
-    //             ref.current.style.transform = "none"
-    //             cardDispatch({
-    //                 type: "SET_PLACEHOLDER_IDX",
-    //                 placeholderIdx: -1
-    //             })
-    //             element.onmouseup = null;
-    //         };
-    //     };
-    // }, [])
 
     return (
         <div

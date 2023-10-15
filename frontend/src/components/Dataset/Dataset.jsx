@@ -4,10 +4,10 @@ import { Modal, Loader } from "semantic-ui-react"
 import { useLoaderData, defer, Await } from "react-router-dom"
 import { BACKEND_URL, recordsPerPage } from "../../lib/constant"
 import { urlJoin } from "../../lib/utils"
-import { DataTable } from "../DataTable"
-import { Pagination } from '../Pagination'
+import { DataTable } from "./DataTable"
+import { Pagination } from './Pagination'
 import { ErrorPage } from '../ErrorPage/ErrorPage'
-import { SampleEditor } from '../SampleEditor'
+import { SampleEditor } from './SampleEditor'
 import { DatasetContext } from './context'
 import { datasetReducer } from './reducer';
 import "./style.css"
@@ -38,7 +38,7 @@ export async function dataLoader({ params }) {
     return defer({ data: queryData(params.pageId), pageId })
 }
 
-export const MainComponent = () => {
+export const Dataset = () => {
     const { data, pageId } = useLoaderData()
     const [totalPageLoad, setTotalPageLoad] = React.useState(true)
     const [totalPage, setTotalPage] = React.useState(0)

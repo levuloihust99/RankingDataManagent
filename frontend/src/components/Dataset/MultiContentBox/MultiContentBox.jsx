@@ -2,7 +2,7 @@ import React from 'react'
 import { Icon, Button } from 'semantic-ui-react'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { DatasetContext } from '../MainComponent/context'
+import { DatasetContext } from '../context'
 import "./style.css"
 import { RowContext } from '../DataTable/context'
 

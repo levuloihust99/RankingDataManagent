@@ -2,7 +2,7 @@ import React from "react"
 import { CodeBlock, dracula, github } from "react-code-blocks";
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { DatasetContext } from "../MainComponent/context";
+import { DatasetContext } from "../context";
 import { DndCard } from "./DndCard";
 import "./style.css"
 

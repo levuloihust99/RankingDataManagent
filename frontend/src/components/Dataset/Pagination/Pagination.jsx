@@ -9,13 +9,13 @@ export const Pagination = ({ pageId, totalPage }) => {
 
     const handleClickPrevious = (e) => {
         if (pageId > 1) {
-            navigate(`/page/${pageId - 1}`)
+            navigate(`/dataset/page/${pageId - 1}`)
         }
     }
 
     const handleClickNext = (e) => {
         if (pageId < totalPage) {
-            navigate(`/page/${pageId + 1}`)
+            navigate(`/dataset/page/${pageId + 1}`)
         }
     }
 
@@ -84,7 +84,7 @@ export const Pagination = ({ pageId, totalPage }) => {
             return (
                 <Button
                     key={idx}
-                    onClick={() => navigate(`/page/${item.num}`)}
+                    onClick={() => navigate(`/dataset/page/${item.num}`)}
                     className={item.active === true ? "pagination-button active" : "pagination-button"}
                 >
                     {item.num}

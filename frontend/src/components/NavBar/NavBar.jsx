@@ -1,5 +1,5 @@
-import "./NavBar.css"
 import { Header, Menu, Icon } from 'semantic-ui-react'
+import "./style.css"
 
 export const NavBar = ({ activeItem, setActiveItem }) => {
     const handleOnClick = (e, { name }) => {

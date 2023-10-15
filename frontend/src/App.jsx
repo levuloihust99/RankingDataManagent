@@ -4,16 +4,17 @@ import {
     RouterProvider,
     redirect
 } from "react-router-dom";
-import { NavBar } from "./components/NavBar"
+import { NavBar } from "./components/NavBar/NavBar"
 import { AppContext } from './context'
-import { TitleBar } from './components/TitleBar'
-import { MainComponent } from './components/MainComponent'
-import { dataLoader } from './components/MainComponent/MainComponent';
+import { TitleBar } from './components/TitleBar/TitleBar'
+import { Dataset } from './components/Dataset'
+import { dataLoader } from './components/Dataset/Dataset';
 import { ErrorPage } from './components/ErrorPage/ErrorPage';
+import { Exporter } from './components/Exporter';
 import "./App.css"
 
 function redirectLoader({ request }) {
-    return redirect("/page/1")
+    return redirect("/dataset/page/1")
 }
 
 const router = createBrowserRouter([
@@ -25,9 +26,13 @@ const router = createBrowserRouter([
                 loader: redirectLoader,
             },
             {
-                path: "/page/:pageId",
+                path: "/dataset/page/:pageId",
                 loader: dataLoader,
-                element: <MainComponent />
+                element: <Dataset />
+            },
+            {
+                path: "/export",
+                element: <Exporter />
             }
         ]
     }

@@ -1,6 +1,6 @@
 import React from "react"
 import { Button, Icon } from "semantic-ui-react"
-import { AppContext } from "../context"
+import { AppContext } from "../../context"
 
 export const TitleBar = () => {
     const { dispatch } = React.useContext(AppContext)

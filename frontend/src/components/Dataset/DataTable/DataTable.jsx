@@ -1,5 +1,5 @@
 import React from 'react'
-import { DatasetContext } from "../MainComponent/context"
+import { DatasetContext } from "../context"
 import { MultiContentBox } from "../MultiContentBox"
 import { RowContext } from "./context"
 import "./style.css"
