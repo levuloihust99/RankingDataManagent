@@ -8,3 +8,4 @@ export function getRandomString (len = 16) {
     }
     return randCharacters.join('')
 }
+

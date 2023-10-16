@@ -6,16 +6,16 @@ import "./style.css"
 
 const TableRow = ({ input, outputs }) => {
     return (
-            <tr>
-                <td className="query-column">
-                    <div>
-                        {input}
-                    </div>
-                </td>
-                <td className="response-column">
-                    <MultiContentBox contents={outputs.map(item => item.content)} />
-                </td>
-            </tr>
+        <tr>
+            <td className="query-column">
+                <div>
+                    {input}
+                </div>
+            </td>
+            <td className="response-column">
+                <MultiContentBox contents={outputs.map(item => item.content)} />
+            </td>
+        </tr>
     )
 }
 

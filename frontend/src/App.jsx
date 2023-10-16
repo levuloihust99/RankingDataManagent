@@ -2,41 +2,16 @@ import React from 'react'
 import {
     createBrowserRouter,
     RouterProvider,
-    redirect
+    redirect,
+    Outlet,
+    useNavigate,
+    useLocation,
+    useNavigation
 } from "react-router-dom";
 import { NavBar } from "./components/NavBar/NavBar"
 import { AppContext } from './context'
 import { TitleBar } from './components/TitleBar/TitleBar'
-import { Dataset } from './components/Dataset'
-import { dataLoader } from './components/Dataset/Dataset';
-import { ErrorPage } from './components/ErrorPage/ErrorPage';
-import { Exporter } from './components/Exporter';
 import "./App.css"
-
-function redirectLoader({ request }) {
-    return redirect("/dataset/page/1")
-}
-
-const router = createBrowserRouter([
-    {
-        errorElement: <ErrorPage />,
-        children: [
-            {
-                path: "/",
-                loader: redirectLoader,
-            },
-            {
-                path: "/dataset/page/:pageId",
-                loader: dataLoader,
-                element: <Dataset />
-            },
-            {
-                path: "/export",
-                element: <Exporter />
-            }
-        ]
-    }
-]);
 
 const reducer = (state, action) => {
     switch (action.type) {
@@ -48,8 +23,13 @@ const reducer = (state, action) => {
 }
 
 export const App = () => {
+    const navigate = useNavigate()
+    const location = useLocation()
     const [state, dispatch] = React.useReducer(reducer, { pushed: true, activeItem: "database" })
     const { pushed, activeItem } = state
+    React.useEffect(() => {
+        if (location.pathname === "/") navigate("dataset/page/1")
+    }, [location.pathname])
     return (
         <AppContext.Provider value={{ dispatch, pushed }}>
             <div id="app"
@@ -63,8 +43,7 @@ export const App = () => {
                     id="main-content"
                 >
                     <TitleBar />
-                    <RouterProvider router={router}>
-                    </RouterProvider>
+                    <Outlet />
                 </div>
             </div>
         </AppContext.Provider>

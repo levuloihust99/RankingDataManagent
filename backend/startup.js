@@ -2,9 +2,9 @@ import mongoose from 'mongoose'
 import { config } from 'dotenv'
 
 export async function setup() {
-    mongoose.set('useNewUrlParser', true);
-    mongoose.set('useFindAndModify', false);
-    mongoose.set('useCreateIndex', true);
+    // mongoose.set('useNewUrlParser', true); // only use for mongoose v5
+    // mongoose.set('useFindAndModify', false); // only use for mongoose v5
+    // mongoose.set('useCreateIndex', true); // only use for mongoose v5
     config()
     // connect to mongodb
     await mongoose.connect(

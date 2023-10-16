@@ -48,4 +48,6 @@ const RankingSampleSchema = new Schema({
     timestamps: true
 })
 
+RankingSampleSchema.index({ createdAt: 1 })
+
 export const RankingSampleCollection = mongoose.model("RankingSample", RankingSampleSchema, "ranking-samples")

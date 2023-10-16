@@ -1,9 +1,18 @@
 import { Header, Menu, Icon } from 'semantic-ui-react'
+import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useNavigate } from 'react-router-dom'
 import "./style.css"
 
 export const NavBar = ({ activeItem, setActiveItem }) => {
+    const navigate = useNavigate()
     const handleOnClick = (e, { name }) => {
         setActiveItem(name)
+        if (name === "export") {
+            navigate("/export")
+        } else if (name == "database") {
+            navigate("/dataset/page/1")
+        }
     }
     return (
         <div
@@ -33,13 +42,27 @@ export const NavBar = ({ activeItem, setActiveItem }) => {
                     <Icon name="database" />
                     Database
                 </Menu.Item>
-                <Menu.Item
+                {/* <Menu.Item
                     name="playground"
                     active={activeItem === "playground"}
                     onClick={handleOnClick}
                 >
                     <Icon name="comment" />
                     Playground
+                </Menu.Item> */}
+                <Menu.Item
+                    name="export"
+                    active={activeItem === "export"}
+                    onClick={handleOnClick}
+                >
+                    <FontAwesomeIcon
+                        style={{
+                            float: "right",
+                            width: "1.18em"
+                        }}
+                        icon={icon({name: "download"})}
+                    />
+                    Export
                 </Menu.Item>
             </Menu>
         </div>
