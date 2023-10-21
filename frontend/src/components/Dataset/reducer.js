@@ -20,8 +20,9 @@ export const datasetReducer = (state, action) => {
 function moveItem(state, action) {
     // params: rowIdx, aIdx, bIdx
     // move item from aIdx to bIdx
+    const newState = JSON.parse(JSON.stringify(state))
     const { rowIdx, aIdx, bIdx } = action
-    const { outputs, ...other } = state.dataset[rowIdx]
+    const { outputs, ...other } = newState.dataset[rowIdx]
     let nextOutputs = []
     if (aIdx < bIdx) {
         nextOutputs = [
@@ -38,57 +39,27 @@ function moveItem(state, action) {
             ...outputs.slice(aIdx + 1)
         ]
     }
-    return {
-        ...state,
-        dataset: [
-            ...state.dataset.slice(0, action.rowIdx),
-            { ...other, outputs: nextOutputs },
-            ...state.dataset.slice(action.rowIdx + 1)
-        ]
-    }
+    newState.dataset[rowIdx].outputs = nextOutputs
+    return newState
 }
 
 function mutateInput(state, action) {
     // params: rowIdx, input
-    return {
-        ...state,
-        dataset: [
-            ...state.dataset.slice(0, action.rowIdx),
-            { ...state.dataset[action.rowIdx], input: action.input },
-            ...state.dataset.slice(action.rowIdx + 1)
-        ]
-    }
+    const newState = JSON.parse(JSON.stringify(state))
+    newState.dataset[action.rowIdx].input = action.input
+    return newState
 }
 
 function mutateOutput(state, action) {
     // params: rowIdx, outputIdx, output
-    const { outputs, ...other } = state.dataset[action.rowIdx]
-    const { content, ...remain } = outputs[action.outputIdx]
-    return {
-        ...state,
-        dataset: [
-            ...state.dataset.slice(0, action.rowIdx),
-            {
-                ...other,
-                outputs: [
-                    ...outputs.slice(0, action.outputIdx),
-                    { ...remain, content: action.output }
-                ]
-            },
-            ...state.dataset.slice(action.rowIdx + 1)
-        ]
-    }
+    const newState = JSON.parse(JSON.stringify(state))
+    newState.dataset[action.rowIdx].outputs[action.outputIdx].content = action.output
+    return newState
 }
 
 function mutateMetadata(state, action) {
     // params: rowIdx, metadata
-    const { metadata, ...other } = state.dataset[action.rowIdx]
-    return {
-        ...state,
-        dataset: [
-            ...state.dataset.slice(0, action.rowIdx),
-            { ...other, metadata: action.metadata },
-            ...state.dataset.slice(action.rowIdx + 1)
-        ]
-    }
+    const newState = JSON.parse(JSON.stringify(state))
+    newState.dataset[action.rowIdx].metadata = action.metadata
+    return newState
 }

@@ -19,3 +19,8 @@
 /* #main-content::-webkit-scrollbar {
   display: none;
 } */
+
+.action-icon:hover {
+  cursor: pointer;
+  color: rgb(100, 100, 100);
+}

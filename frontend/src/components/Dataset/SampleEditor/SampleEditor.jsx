@@ -4,6 +4,7 @@ import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DatasetContext } from "../context";
 import { DndCard } from "./DndCard";
+import { VerticalSeparator } from "../../common/Separator";
 import "./style.css"
 
 export const SampleEditor = () => {
@@ -43,7 +44,7 @@ export const SampleEditor = () => {
             >
                 <textarea
                     className="sample-editor-input-area"
-                    value={`${liveInput}`}
+                    defaultValue={`${liveInput}`}
                     ref={textareaRef}
                 >
                 </textarea>
@@ -84,7 +85,7 @@ export const SampleEditor = () => {
             <HeaderBlock text="MAIN CONTENT" />
             <div className="sample-editor-main-area">
                 {renderInputArea()}
-                <Separator />
+                <VerticalSeparator width="20px" />
                 {renderOutputContainer()}
             </div>
             <HeaderBlock text="METADATA" />
@@ -110,17 +111,6 @@ const HeaderBlock = ({ text }) => {
             }}
         >
             {text}
-        </div>
-    )
-}
-
-const Separator = () => {
-    return (
-        <div
-            style={{
-                width: "20px"
-            }}
-        >
         </div>
     )
 }

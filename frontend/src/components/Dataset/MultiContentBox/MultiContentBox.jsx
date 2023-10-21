@@ -3,8 +3,8 @@ import { Icon, Button } from 'semantic-ui-react'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DatasetContext } from '../context'
-import "./style.css"
 import { RowContext } from '../DataTable/context'
+import "./style.css"
 
 const LocalNavigator = ({ index, total, setIndex }) => {
     const { dispatch } = React.useContext(DatasetContext)
@@ -57,7 +57,7 @@ const LocalNavigator = ({ index, total, setIndex }) => {
                 }}
             >
                 <FontAwesomeIcon
-                    className="edit-icon"
+                    className="action-icon"
                     icon={icon({name: "pen-to-square"})}
                     style={{float: "right"}}
                     onClick={(e) => dispatch({

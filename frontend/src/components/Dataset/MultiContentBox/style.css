@@ -8,8 +8,3 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
-.edit-icon:hover {
-    cursor: pointer;
-    color: rgb(100, 100, 100);
-}

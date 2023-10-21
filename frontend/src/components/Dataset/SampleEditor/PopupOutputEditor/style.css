@@ -1,0 +1,24 @@
+.output-content-area {
+    resize: none;
+    overflow-y: auto;
+    outline: none;
+    border: 0;
+    /* height: 100%; */
+    width: 100%;
+    text-align: justify;
+    font-family: inherit;
+    color: inherit;
+    /* flex-grow: 1; */
+}
+
+.rounded-corner-container {
+    border-radius: 8px;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px 0px, rgba(9, 30, 66, 0.31) 0px 0px 1px 1px;
+}
+
+.column-flex-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
