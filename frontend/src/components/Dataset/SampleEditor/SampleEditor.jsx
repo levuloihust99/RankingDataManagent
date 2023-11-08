@@ -11,19 +11,67 @@ export const SampleEditor = () => {
     const { state: { dataset, activeRow }, dispatch } = React.useContext(DatasetContext)
     const { input, metadata } = dataset[activeRow]
     const [liveMetadata, setLiveMetadata] = React.useState(metadata)
+
     const [liveInput, setLiveInput] = React.useState(input)
+    const [prevLiveInput, setPrevLiveInput] = React.useState(input)
+    const [onEditInput, setOnEditInput] = React.useState(false)
+
     const [textAreaHeight, setTextAreaHeight] = React.useState("auto")
     const textareaRef = React.useRef()
+
+    React.useEffect(() => {
+        const task = { current: null }
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.target === textareaRef.current) {
+                    clearTimeout(task.current)
+                    task.current = setTimeout(() => {
+                        fitTextArea()
+                    }, 100)
+                }
+            }
+        })
+        observer.observe(textareaRef.current)
+        return () => {
+            if (textareaRef.current) {
+                observer.unobserve(textareaRef.current)
+            }
+        }
+    }, [])
 
     React.useEffect(() => {
         setLiveMetadata(JSON.stringify(metadata, null, 4))
     }, [metadata])
 
     React.useEffect(() => {
-        setLiveInput(input)
+        fitTextArea()
+    }, [liveInput])
+
+    const handleOnChangeInput = (e) => {
+        setLiveInput(e.target.value)
+    }
+
+    const handleClickConfirmEditInput = (e) => {
+        setOnEditInput(false)
+        setPrevLiveInput(liveInput)
+    }
+
+    const handleClickCancelEditInput = (e) => {
+        setOnEditInput(false)
+        setLiveInput(prevLiveInput)
+    }
+
+    const handleClickEditInput = (e) => {
+        setOnEditInput(true)
+        textareaRef.current.select()
+    }
+
+    const fitTextArea = () => {
+        textareaRef.current.style.height = "auto"
         const fullScrollHeight = textareaRef.current.scrollHeight
-        setTextAreaHeight(`${fullScrollHeight + 20}px`)
-    }, [input])
+        textareaRef.current.style.height = fullScrollHeight + "px"
+        setTextAreaHeight(fullScrollHeight)
+    }
 
     const renderOutputContainer = () => {
         return (
@@ -36,18 +84,76 @@ export const SampleEditor = () => {
     const renderInputArea = () => {
         return (
             <div
-                className="sample-editor-input-container"
+                className="rounded-corner-container column-flex-container"
                 style={{
-                    padding: "10px 10px 10px 20px",
-                    height: textAreaHeight
+                    marginBottom: "10px",
+                    flexGrow: 1,
+                    margin: "10px 10px 10px 20px"
                 }}
             >
-                <textarea
-                    className="sample-editor-input-area"
-                    defaultValue={`${liveInput}`}
-                    ref={textareaRef}
+                <div
+                    style={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        padding: "10px",
+                        borderBottom: "solid 1px rgb(222, 222, 223)"
+
+                    }}
                 >
-                </textarea>
+                    {!onEditInput ? (
+                        <FontAwesomeIcon
+                            className="action-icon"
+                            icon={icon({ name: "pen-to-square" })}
+                            style={{
+                                marginRight: "8px"
+                            }}
+                            onClick={handleClickEditInput}
+                        />
+                    ) : (
+                        <>
+                            <FontAwesomeIcon
+                                className="action-icon"
+                                icon={icon({ name: "check" })}
+                                style={{
+                                    marginRight: "8px"
+                                }}
+                                onClick={handleClickConfirmEditInput}
+                            />
+                            <FontAwesomeIcon
+                                className="action-icon"
+                                icon={icon({ name: "xmark" })}
+                                style={{
+                                    marginRight: "8px"
+                                }}
+                                onClick={handleClickCancelEditInput}
+                            />
+                        </>
+                    )}
+                </div>
+                <div
+                    style={{
+                        padding: "10px",
+                        width: "100%",
+                    }}
+                >
+                    <div
+                        style={{
+                            height: `${textAreaHeight}px`,
+                        }}
+                    >
+                        <textarea
+                            className="sample-editor-input-area"
+                            ref={textareaRef}
+                            readOnly={!onEditInput}
+                            value={liveInput}
+                            onChange={handleOnChangeInput}
+                        >
+                        </textarea>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -65,7 +171,7 @@ export const SampleEditor = () => {
     return (
         <div className="sample-editor-container">
             <div
-                style={{display: "flex", flexDirection: "row"}}
+                style={{ display: "flex", flexDirection: "row" }}
             >
                 <div
                     className="sample-editor-back-data"
@@ -78,7 +184,7 @@ export const SampleEditor = () => {
                         fontSize: "1.25em"
                     }}
                 >
-                    <FontAwesomeIcon icon={icon({name: "angle-left"})} />
+                    <FontAwesomeIcon icon={icon({ name: "angle-left" })} />
                     &nbsp;&nbsp;Data
                 </div>
             </div>

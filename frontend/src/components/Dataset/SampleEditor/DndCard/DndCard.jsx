@@ -72,7 +72,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
     React.useEffect(() => {
         const element = ref.current
         let holdTimeout = null
-        const HOLD_DELAY = 100 // 100 miliseconds
+        const HOLD_DELAY = 150 // 150 miliseconds
 
         element.onmousedown = function (event) {
             function clearTimeoutOnMouseUp() {

@@ -11,19 +11,36 @@ export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
     const [contentHeight, setContentHeight] = React.useState("auto")
     const [liveContent, setLiveContent] = React.useState(item.content)
     const [prevLiveContent, setPrevLiveContent] = React.useState(item.content)
+    const inputRef = React.useRef()
 
     React.useEffect(() => {
-        inputRef.current.style.height = "auto"
-        const fullScrollHeight = inputRef.current.scrollHeight
-        setContentHeight(fullScrollHeight)
+        const task = { current: null }
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.target === inputRef.current) {
+                    clearTimeout(task.current)
+                    task.current = setTimeout(() => {
+                        fitTextArea()
+                    }, 100)
+                }
+            }
+        })
+        observer.observe(inputRef.current)
+        return () => {
+            if (inputRef.current) {
+                observer.unobserve(inputRef.current)
+            }
+        }
+    }, [])
+
+    React.useEffect(() => {
+        fitTextArea()
     }, [liveContent])
 
     React.useEffect(() => {
         setPrevLiveContent(item.content)
         setLiveContent(item.content)
     }, [item.content])
-
-    const inputRef = React.useRef()
 
     const handleChangeContent = (e) => {
         setLiveContent(e.target.value)
@@ -46,6 +63,13 @@ export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
         setOnEditContent(false)
 
         // dispatch action
+    }
+
+    const fitTextArea = () => {
+        inputRef.current.style.height = "auto"
+        const fullScrollHeight = inputRef.current.scrollHeight
+        inputRef.current.style.height = fullScrollHeight + "px"
+        setContentHeight(fullScrollHeight)
     }
 
     return (
@@ -116,7 +140,6 @@ export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
                             value={liveContent}
                             onChange={handleChangeContent}
                             style={{
-                                height: `${contentHeight}px`,
                                 padding: 0,
                                 overflow: "hidden"
                             }}
