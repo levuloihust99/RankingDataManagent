@@ -100,7 +100,6 @@ export const SampleEditor = () => {
                         alignItems: "center",
                         padding: "10px",
                         borderBottom: "solid 1px rgb(222, 222, 223)"
-
                     }}
                 >
                     {!onEditInput ? (

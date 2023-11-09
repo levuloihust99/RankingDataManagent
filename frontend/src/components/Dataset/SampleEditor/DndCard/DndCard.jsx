@@ -30,7 +30,7 @@ const cardReducer = (state, action) => {
 export const DndCard = () => {
     const ref = React.useRef()
     const [
-        { placeholderIdx, placeholderHeight}, dispatch
+        { placeholderIdx, placeholderHeight }, dispatch
     ] = React.useReducer(cardReducer, { placeholderIdx: -1, placeholderHeight: "auto" })
     const { state: { dataset, activeRow } } = React.useContext(DatasetContext)
     const { outputs: items } = dataset[activeRow]
@@ -65,7 +65,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
     const ref = React.useRef()
 
     const {
-        containerRef, state: { placeholderIdx } , dispatch: cardDispatch
+        containerRef, state: { placeholderIdx }, dispatch: cardDispatch
     } = React.useContext(CardContext)
     const { state: { activeRow }, dispatch: datasetDispatch } = React.useContext(DatasetContext)
 
@@ -81,7 +81,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
             }
             element.addEventListener('mouseup', clearTimeoutOnMouseUp)
 
-            holdTimeout = setTimeout(function() {
+            holdTimeout = setTimeout(function () {
                 const elementRect = element.getBoundingClientRect()
                 element.style.position = 'fixed';
                 element.style.zIndex = 1000;
@@ -89,7 +89,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                 element.style.transform = "rotate(3deg)"
                 const deltaX = event.pageX - elementRect.x
                 const deltaY = event.pageY - elementRect.y
-    
+
                 document.body.append(element);
                 const placeholder = document.createElement("div")
                 placeholder.className = "dnd-card-item place-holder"
@@ -99,14 +99,14 @@ const CardItem = ({ metadata, score, content, idx }) => {
                 } else {
                     containerRef.current.insertBefore(placeholder, containerRef.current.children[idx])
                 }
-    
+
                 function moveAt(pageX, pageY) {
                     element.style.left = pageX - deltaX + 'px';
                     element.style.top = pageY - deltaY + 'px';
                 }
-    
+
                 moveAt(event.pageX, event.pageY);
-    
+
                 let placeholderIdx = idx
                 function swapChild(aIdx, bIdx) {
                     const container = containerRef.current
@@ -117,7 +117,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                     container.insertBefore(bNode, aNode)
                     container.replaceChild(aNode, anchor)
                 }
-    
+
                 function onMouseMove(event) {
                     moveAt(event.pageX, event.pageY);
                     let childIdx = 0
@@ -140,7 +140,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                         }
                     }
                 }
-    
+
                 function onEscDown(event) {
                     if (event.key === "Escape") {
                         onMouseUp()
@@ -167,7 +167,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                     }
                 }
                 element.addEventListener('mouseup', onMouseUp)
-    
+
             }, HOLD_DELAY)
 
         };
@@ -175,11 +175,41 @@ const CardItem = ({ metadata, score, content, idx }) => {
 
     return (
         <div
-            className="dnd-card-item"
+            className="dnd-card-item column-flex-container"
             ref={ref}
             onClick={(e) => setOnEdit(true)}
         >
-            <div>
+            <div
+                style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    padding: "4px 10px 4px 10px",
+                    borderBottom: "solid 1px rgb(222, 222, 223)",
+                    backgroundColor: "rgb(222, 222, 222)",
+                    borderTopLeftRadius: "8px",
+                    borderTopRightRadius: "8px",
+                }}
+            >
+                <span
+                    title={metadata.generator || "default"}
+                    style={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                    }}
+                >
+                    {metadata.generator || "default"}
+                </span>
+            </div>
+            <div
+                style={{
+                    padding: "10px",
+                    width: "100%",
+                }}
+            >
                 {content}
             </div>
             <Modal
