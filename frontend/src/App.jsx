@@ -28,7 +28,9 @@ export const App = () => {
     const [state, dispatch] = React.useReducer(reducer, { pushed: true, activeItem: "database" })
     const { pushed, activeItem } = state
     React.useEffect(() => {
-        if (location.pathname === "/") navigate("dataset/page/1")
+        if (location.pathname === "/") {
+            navigate("dataset/page/1")
+        }
     }, [location.pathname])
     return (
         <AppContext.Provider value={{ dispatch, pushed }}>

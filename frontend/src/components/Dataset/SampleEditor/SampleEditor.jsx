@@ -1,14 +1,18 @@
 import React from "react"
-import { CodeBlock, dracula, github } from "react-code-blocks";
-import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { DatasetContext } from "../context";
-import { DndCard } from "./DndCard";
-import { VerticalSeparator } from "../../common/Separator";
+import { v4 as uuidv4 } from 'uuid'
+import { CodeBlock, dracula, github } from "react-code-blocks"
+import { icon } from "@fortawesome/fontawesome-svg-core/import.macro"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { DatasetContext } from "../context"
+import { DndCard } from "./DndCard"
+import { VerticalSeparator } from "../../common/Separator"
 import "./style.css"
 
 export const SampleEditor = () => {
-    const { state: { dataset, activeRow }, dispatch } = React.useContext(DatasetContext)
+    const {
+        state: { dataset, activeRow },
+        dispatch: datasetDispatch
+    } = React.useContext(DatasetContext)
     const { input, metadata } = dataset[activeRow]
     const [liveMetadata, setLiveMetadata] = React.useState(metadata)
 
@@ -18,6 +22,12 @@ export const SampleEditor = () => {
 
     const [textAreaHeight, setTextAreaHeight] = React.useState("auto")
     const textareaRef = React.useRef()
+
+    const [dndCardUID, setDndCardUID] = React.useState(uuidv4())
+
+    const remountDndCard = () => {
+        setDndCardUID(uuidv4())
+    }
 
     React.useEffect(() => {
         const task = { current: null }
@@ -76,7 +86,7 @@ export const SampleEditor = () => {
     const renderOutputContainer = () => {
         return (
             <div className="sample-editor-output-container">
-                <DndCard />
+                <DndCard key={dndCardUID} remountDndCard={remountDndCard} />
             </div>
         )
     }
@@ -135,12 +145,12 @@ export const SampleEditor = () => {
                 <div
                     style={{
                         padding: "10px",
-                        width: "100%",
+                        width: "100%"
                     }}
                 >
                     <div
                         style={{
-                            height: `${textAreaHeight}px`,
+                            height: `${textAreaHeight}px`
                         }}
                     >
                         <textarea
@@ -149,8 +159,7 @@ export const SampleEditor = () => {
                             readOnly={!onEditInput}
                             value={liveInput}
                             onChange={handleOnChangeInput}
-                        >
-                        </textarea>
+                        ></textarea>
                     </div>
                 </div>
             </div>
@@ -158,26 +167,23 @@ export const SampleEditor = () => {
     }
 
     const renderMetaData = () => {
-        return (
-            <CodeBlock
-                text={liveMetadata}
-                language="json"
-                theme={github}
-            />
-        )
+        return <CodeBlock text={liveMetadata} language="json" theme={github} />
     }
 
     return (
-        <div className="sample-editor-container">
-            <div
-                style={{ display: "flex", flexDirection: "row" }}
-            >
+        <div
+            id="sample-editor"
+            className="sample-editor-container"
+        >
+            <div style={{ display: "flex", flexDirection: "row" }}>
                 <div
                     className="sample-editor-back-data"
-                    onClick={(e) => dispatch({
-                        type: "SET_ACTIVE_ROW",
-                        activeRow: -1
-                    })}
+                    onClick={(e) =>
+                        datasetDispatch({
+                            type: "SET_ACTIVE_ROW",
+                            activeRow: -1
+                        })
+                    }
                     style={{
                         paddingLeft: "20px",
                         fontSize: "1.25em"
@@ -194,9 +200,7 @@ export const SampleEditor = () => {
                 {renderOutputContainer()}
             </div>
             <HeaderBlock text="METADATA" />
-            <div>
-                {renderMetaData()}
-            </div>
+            <div>{renderMetaData()}</div>
         </div>
     )
 }

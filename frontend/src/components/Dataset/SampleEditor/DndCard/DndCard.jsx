@@ -4,14 +4,14 @@ import { PopupOutputEditor } from '../PopupOutputEditor';
 import { DatasetContext } from '../../context'
 import "./style.css"
 
-const CardContext = React.createContext(null)
+const DndCardContext = React.createContext(null)
 
-const cardReducer = (state, action) => {
+const dndCardReducer = (state, action) => {
     switch (action.type) {
         case "SET_PLACEHOLDER_IDX":
             return {
                 ...state,
-                placeholderIdx: action.placeholderIdx,
+                placeholderIdx: action.placeholderIdx
             }
         case "SET_PLACEHOLDER_HEIGHT":
             return {
@@ -24,18 +24,22 @@ const cardReducer = (state, action) => {
                 placeholderIdx: action.placeholderIdx,
                 placeholderHeight: action.placeholderHeight
             }
+        default:
+            return state
     }
 }
 
-export const DndCard = () => {
+export const DndCard = ({ remountDndCard }) => {
     const ref = React.useRef()
-    const [
-        { placeholderIdx, placeholderHeight }, dispatch
-    ] = React.useReducer(cardReducer, { placeholderIdx: -1, placeholderHeight: "auto" })
     const { state: { dataset, activeRow } } = React.useContext(DatasetContext)
     const { outputs: items } = dataset[activeRow]
+
+    const [
+        { placeholderIdx, placeholderHeight }, dispatch
+    ] = React.useReducer(dndCardReducer, { placeholderIdx: -1, placeholderHeight: "auto" })
+
     return (
-        <CardContext.Provider value={{ containerRef: ref, state: { placeholderIdx }, dispatch }}>
+        <DndCardContext.Provider value={{ containerRef: ref, state: { placeholderIdx }, dispatch, remountDndCard }}>
             <div
                 ref={ref}
                 className="dnd-card-container"
@@ -55,18 +59,17 @@ export const DndCard = () => {
                     )
                 })}
             </div>
-        </CardContext.Provider>
+        </DndCardContext.Provider>
     )
 }
 
 const CardItem = ({ metadata, score, content, idx }) => {
-    const { dispatch } = React.useContext(DatasetContext)
     const [onEdit, setOnEdit] = React.useState(false)
     const ref = React.useRef()
 
     const {
-        containerRef, state: { placeholderIdx }, dispatch: cardDispatch
-    } = React.useContext(CardContext)
+        containerRef, state: { placeholderIdx }, dispatch: cardDispatch, remountDndCard
+    } = React.useContext(DndCardContext)
     const { state: { activeRow }, dispatch: datasetDispatch } = React.useContext(DatasetContext)
 
     React.useEffect(() => {
@@ -108,7 +111,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                 moveAt(event.pageX, event.pageY);
 
                 let placeholderIdx = idx
-                function swapChild(aIdx, bIdx) {
+                function swapChild(aIdx, bIdx) { // should change to shiftChild
                     const container = containerRef.current
                     const aNode = container.children[aIdx]
                     const bNode = container.children[bIdx]
@@ -118,6 +121,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                     container.replaceChild(aNode, anchor)
                 }
 
+                const scrollTask = { current: null }
                 function onMouseMove(event) {
                     moveAt(event.pageX, event.pageY);
                     let childIdx = 0
@@ -164,6 +168,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                             aIdx: idx,
                             bIdx: placeholderIdx
                         })
+                        remountDndCard()
                     }
                 }
                 element.addEventListener('mouseup', onMouseUp)

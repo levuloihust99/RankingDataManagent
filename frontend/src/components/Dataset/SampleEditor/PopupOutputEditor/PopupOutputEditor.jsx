@@ -52,8 +52,6 @@ export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
     }
 
     const handleCancelEdit = (e) => {
-        console.log(prevLiveContent)
-        console.log("Click canceled")
         setLiveContent(prevLiveContent)
         setOnEditContent(false)
     }

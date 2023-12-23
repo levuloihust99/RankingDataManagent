@@ -1,9 +1,9 @@
-import { createBrowserRouter } from 'react-router-dom'
-import { ErrorPage } from "./components/ErrorPage";
-import { Dataset } from "./components/Dataset";
+import { createBrowserRouter } from "react-router-dom"
 import { App } from "./App"
-import { Exporter } from "./components/Exporter";
-import { dataLoader } from './components/Dataset/Dataset';
+import { ErrorPage } from "./components/ErrorPage"
+import { Dataset } from "./components/Dataset"
+import { Exporter } from "./components/Exporter"
+import { dataLoader } from "./components/Dataset/Dataset"
 
 export const router = createBrowserRouter([
     {
@@ -27,4 +27,4 @@ export const router = createBrowserRouter([
             }
         ]
     }
-]);
+])
