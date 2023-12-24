@@ -10,7 +10,8 @@ export const TitleBar = () => {
                 backgroundColor: "#419197",
                 padding: "10px",
                 display: "flex",
-                flexDirection: "row"
+                flexDirection: "row",
+                minWidth: "1030px"
             }}
         >
             <Button

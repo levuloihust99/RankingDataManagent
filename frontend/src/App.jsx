@@ -11,6 +11,8 @@ import {
 import { NavBar } from "./components/NavBar/NavBar"
 import { AppContext } from './context'
 import { TitleBar } from './components/TitleBar/TitleBar'
+import { globalConfig } from './lib/config';
+import { AlertProvider } from './components/Alert/AlertProvider';
 import "./App.css"
 
 const reducer = (state, action) => {
@@ -34,20 +36,22 @@ export const App = () => {
     }, [location.pathname])
     return (
         <AppContext.Provider value={{ dispatch, pushed }}>
-            <div id="app"
-                style={{ width: pushed ? "100vw" : "calc(100vw + 250px)" }}
-            >
-                <NavBar
-                    activeItem={activeItem}
-                    setActiveItem={(item) => dispatch({ type: "SET_ACTIVE_ITEM", activeItem: item })}
-                />
-                <div
-                    id="main-content"
+            <AlertProvider>
+                <div id="app"
+                    style={{ width: pushed ? "100vw" : `calc(100vw + ${globalConfig.sideBarWidth})` }}
                 >
-                    <TitleBar />
-                    <Outlet />
+                    <NavBar
+                        activeItem={activeItem}
+                        setActiveItem={(item) => dispatch({ type: "SET_ACTIVE_ITEM", activeItem: item })}
+                    />
+                    <div
+                        id="main-content"
+                    >
+                        <TitleBar />
+                        <Outlet />
+                    </div>
                 </div>
-            </div>
+            </AlertProvider>
         </AppContext.Provider>
     )
 }

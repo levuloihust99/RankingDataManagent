@@ -5,6 +5,7 @@
     width: 100%;
     border-collapse: collapse;
     border-radius: 8px;
+    min-width: 1000px;
 }
 
 .data-table td {

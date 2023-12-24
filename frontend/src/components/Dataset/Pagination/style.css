@@ -1,3 +1,18 @@
+#pagination-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    min-width: 380px;
+}
+
+@media (max-width: 800px) {
+    #pagination-container {
+        justify-content: flex-start;
+    }
+}
+
 .ui.button.pagination-button {
     min-height: 2.5em;
     min-width: 2.5em;

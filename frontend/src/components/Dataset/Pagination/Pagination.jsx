@@ -93,6 +93,7 @@ export const Pagination = ({ pageId, totalPage }) => {
         })
         return (
             <div
+                id="pagination-container"
                 style={{
                     display: "flex",
                     flexDirection: "row",

@@ -3,3 +3,16 @@
     box-shadow: 0px 0px 20px rgba(34, 36, 38, 0.15);
     margin: 10px 30px 30px 30px;
 }
+
+#save-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px 10px 0 0;
+}
+
+@media (max-width: 800px) {
+    #save-button {
+        display: none;
+    }
+}

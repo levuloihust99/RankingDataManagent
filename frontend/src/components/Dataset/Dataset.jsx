@@ -10,6 +10,7 @@ import { ErrorPage } from '../ErrorPage/ErrorPage'
 import { SampleEditor } from './SampleEditor'
 import { DatasetContext } from './context'
 import { datasetReducer } from './reducer';
+import { SaveButton } from './SaveButton';
 import "./style.css"
 
 async function queryData(pageId) {
@@ -67,7 +68,10 @@ export const Dataset = () => {
 
     return (
         <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%", flexGrow: 1 }}>
-            <Pagination pageId={pageId} totalPage={totalPage} />
+            <div>
+                <Pagination pageId={pageId} totalPage={totalPage} />
+                <SaveButton />
+            </div>
             <React.Suspense
                 fallback={(
                     <Modal dimmer="blurring" open={true} closeIcon={null}>
