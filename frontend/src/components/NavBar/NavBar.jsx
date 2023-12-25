@@ -10,8 +10,10 @@ export const NavBar = ({ activeItem, setActiveItem }) => {
         setActiveItem(name)
         if (name === "export") {
             navigate("/export")
-        } else if (name == "database") {
+        } else if (name === "database") {
             navigate("/dataset/page/1")
+        } else if (name === "import") {
+            navigate("/import")
         }
     }
     return (
@@ -25,7 +27,7 @@ export const NavBar = ({ activeItem, setActiveItem }) => {
                     marginTop: "20px"
                 }}
             >
-                Master Thesis
+                Navigator
             </Header>
             <Menu
                 vertical
@@ -63,6 +65,20 @@ export const NavBar = ({ activeItem, setActiveItem }) => {
                         icon={icon({name: "download"})}
                     />
                     Export
+                </Menu.Item>
+                <Menu.Item
+                    name="import"
+                    active={activeItem === "import"}
+                    onClick={handleOnClick}
+                >
+                    <FontAwesomeIcon
+                        style={{
+                            float: "right",
+                            width: "1.18em"
+                        }}
+                        icon={icon({name: "file-import"})}
+                    />
+                    Import
                 </Menu.Item>
             </Menu>
         </div>

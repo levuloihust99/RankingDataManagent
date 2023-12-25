@@ -3,33 +3,14 @@ import { Button } from "semantic-ui-react"
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { AlertContext } from "../Alert/context"
+import { globalConfig } from '../../lib/config'
 
 export const SaveButton = () => {
-    const { dispatch } = React.useContext(AlertContext)
-
     const handleSave = async () => {
-        // call API
-        await new Promise((resolve, reject) => {
-            setTimeout(() => resolve("Saved successfully!"), 500)
-            // setTimeout(() => reject("Failed to save!"), 0)
-        }).then((msg) => {
-            dispatch({
-                type: 'ADD_MESSAGE',
-                item: {
-                    type: 'success',
-                    message: msg
-                }
-            })
-        }).catch((err) => {
-            dispatch({
-                type: 'ADD_MESSAGE',
-                item: {
-                    type: 'failed',
-                    message: err.toString()
-                }
-            })
-        })
+        const saveButton = document.getElementById(globalConfig.saveDataButtonId)
+        if (saveButton) {
+            saveButton.click()
+        }
     }
 
     return (

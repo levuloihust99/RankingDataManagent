@@ -3,6 +3,7 @@ import { App } from "./App"
 import { ErrorPage } from "./components/ErrorPage"
 import { Dataset } from "./components/Dataset"
 import { Exporter } from "./components/Exporter"
+import { Importer } from "./components/Importer"
 import { dataLoader } from "./components/Dataset/Dataset"
 
 export const router = createBrowserRouter([
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
                     {
                         path: "export",
                         element: <Exporter />
+                    },
+                    {
+                        path: "import",
+                        element: <Importer />
                     }
                 ]
             }

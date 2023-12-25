@@ -1,5 +1,6 @@
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 import { Modal, Loader } from "semantic-ui-react"
 import { useLoaderData, defer, Await } from "react-router-dom"
 import { BACKEND_URL, recordsPerPage } from "../../lib/constant"
@@ -11,8 +12,10 @@ import { SampleEditor } from './SampleEditor'
 import { DatasetContext } from './context'
 import { datasetReducer } from './reducer';
 import { SaveButton } from './SaveButton';
+import { globalConfig } from '../../lib/config'
 import { ActionBar } from './ActionBar';
 import "./style.css"
+import { AlertContext } from '../Alert/context';
 
 async function queryData(pageId) {
     const queryArgs = new URLSearchParams({ pageNum: pageId, recordsPerPage })
@@ -20,7 +23,7 @@ async function queryData(pageId) {
     try {
         const response = await fetch(endpoint)
         const { data } = await response.json()
-        return data.map(item => ({ ...item, outputs: item.outputs.map((out) => ({ ...out, id: uuidv4() })) }))
+        return data.map(item => ({ ...item, outputs: [{ content: item.output, metadata: {} }]}))
     } catch (e) {
         throw new Response("", {
             status: 500,
@@ -38,6 +41,17 @@ export async function dataLoader({ params }) {
         })
     }
     return defer({ data: queryData(params.pageId), pageId })
+}
+
+const updateData = async (data, url) => {
+    await axios.request({
+        method: 'POST',
+        url,
+        data: JSON.stringify(data),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
 }
 
 export const Dataset = () => {
@@ -79,7 +93,7 @@ export const Dataset = () => {
             }}>
                 <Pagination pageId={pageId} totalPage={totalPage} />
                 <SaveButton />
-                <ActionBar />
+                {/* <ActionBar /> */}
             </div>
             <React.Suspense
                 fallback={(
@@ -101,6 +115,7 @@ export const Dataset = () => {
 }
 
 const DataProvider = ({ dataset }) => {
+    const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const [state, dispatch] = React.useReducer(datasetReducer, { dataset, activeRow: -1 })
     React.useEffect(() => {
         dispatch({
@@ -108,6 +123,28 @@ const DataProvider = ({ dataset }) => {
             dataset
         })
     }, [dataset])
+
+    const handleSaveData = (e) => {
+        const endpoint = urlJoin(BACKEND_URL, "update_data")
+        updateData(state.dataset, endpoint).then((msg) => {
+            alertDispatch({
+                type: 'ADD_MESSAGE',
+                item: {
+                    type: 'success',
+                    message: "Saved data successfully"
+                }
+            })
+        }).catch((err) => {
+            alertDispatch({
+                type: 'ADD_MESSAGE',
+                item: {
+                    type: 'failed',
+                    message: err.toString()
+                }
+            })
+        })
+    }
+
     return (
         <DatasetContext.Provider
             value={{
@@ -121,6 +158,10 @@ const DataProvider = ({ dataset }) => {
                     display: state.activeRow > -1 ? "none" : "block"
                 }}
             >
+                <div id={globalConfig.saveDataButtonId}
+                    onClick={handleSaveData}
+                    style={{display: "none"}}
+                ></div>
                 <DataTable />
             </div>
             {(state.activeRow > -1) && (

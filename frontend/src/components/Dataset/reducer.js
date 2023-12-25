@@ -12,6 +12,8 @@ export const datasetReducer = (state, action) => {
             return { ...state, activeRow: action.activeRow }
         case "UPDATE_DATASET":
             return { ...state, dataset: action.dataset }
+        case 'CHANGE_SCORE':
+            return changeScore(state, action)
         default:
             return state
     }
@@ -61,5 +63,15 @@ function mutateMetadata(state, action) {
     // params: rowIdx, metadata
     const newState = JSON.parse(JSON.stringify(state))
     newState.dataset[action.rowIdx].metadata = action.metadata
+    return newState
+}
+
+function changeScore(state, action) {
+    const newState = JSON.parse(JSON.stringify(state))
+    for (const item of newState.dataset) {
+        if (item.sampleId === action.item.sampleId) {
+            item.score = action.item.score
+        }
+    }
     return newState
 }

@@ -3,22 +3,6 @@ import { getRandomString } from "../lib/random.js"
 const { Schema } = mongoose
 const { ObjectId } = mongoose.Types
 
-
-const RankingOutputSchema = new Schema({
-    content: {
-        type: String,
-        required: true
-    },
-    score: {
-        type: Number,
-        default: 0
-    },
-    metadata: {
-        type: Object,
-        default: {}
-    }
-}, { _id: false })
-
 const RankingSampleSchema = new Schema({
     sampleId: {
         type: Schema.Types.Mixed,
@@ -35,10 +19,11 @@ const RankingSampleSchema = new Schema({
         type: String,
         required: true
     },
-    outputs: {
-        type: [RankingOutputSchema],
+    output: {
+        type: String,
         required: true
     },
+    score: Number,
     metadata: {
         type: Object,
         default: {}

@@ -40,7 +40,7 @@ export const TitleBar = () => {
                     color: "white"
                 }}
             >
-                Ranking Data Management
+                Data Annotation
             </div>
         </div>
     )

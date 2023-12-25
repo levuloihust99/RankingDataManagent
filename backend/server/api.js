@@ -93,3 +93,30 @@ app.post("/export_data", async (req, res) => {
     archive.append(inputReadableStream, { name: "data.jsonl" })
     archive.finalize()
 })
+
+app.post("/import_data", async (req, res) => {
+    console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} POST /import_data`)
+    const data = req.body
+    await RankingSampleCollection.insertMany(data)
+    res.sendStatus(200)
+})
+
+app.post("/update_data", async (req, res) => {
+    console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} POST /update_data`)
+    const data = req.body
+    try {
+        for (const item of data) {
+            await RankingSampleCollection.findOneAndUpdate(
+                { sampleId: item.sampleId },
+                {
+                    $set: {
+                        score: item.score
+                    }
+                }
+            )
+        }
+    } catch (err) {
+        res.status(500).send(err.toString())
+    }
+    res.sendStatus(200)
+})
