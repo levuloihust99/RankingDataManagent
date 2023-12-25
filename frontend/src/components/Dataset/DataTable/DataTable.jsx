@@ -31,10 +31,18 @@ const TableRow = ({ rowIdx, item }) => {
                 onClick={() => setDetail(!detail)}
             >
                 <td className='query-column'>
-                    <div>{item.input}</div>
+                    <div
+                        className={clsx(!detail && "multiline-ellipsis")}
+                    >{item.input}</div>
                 </td>
                 <td className='response-column'>
-                    <div className='single-response-content'>{item.outputs[0].content}</div>
+                    <div
+                        className={clsx('single-response-content',
+                            !detail && "multiline-ellipsis"
+                        )}
+                    >
+                        {item.outputs[0].content}
+                    </div>
                 </td>
             </tr>
             {detail && (

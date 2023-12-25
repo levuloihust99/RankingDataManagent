@@ -13,27 +13,32 @@
 }
 
 .query-column {
-    width: 60%;
+    width: 35%;
     vertical-align: top;
 }
 
 .query-column > div {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
+    /* display: -webkit-box;
+    -webkit-line-clamp: 4; */
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
 .response-column {
-    width: 40%;
+    width: 65%;
     vertical-align: top;
 }
 
 .single-response-content {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
+    /* display: -webkit-box;
+    -webkit-line-clamp: 4; */
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.multiline-ellipsis {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
 }
 
 .query-column.header {
