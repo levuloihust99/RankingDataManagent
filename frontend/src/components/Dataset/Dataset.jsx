@@ -11,6 +11,7 @@ import { SampleEditor } from './SampleEditor'
 import { DatasetContext } from './context'
 import { datasetReducer } from './reducer';
 import { SaveButton } from './SaveButton';
+import { ActionBar } from './ActionBar';
 import "./style.css"
 
 async function queryData(pageId) {
@@ -68,9 +69,17 @@ export const Dataset = () => {
 
     return (
         <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%", flexGrow: 1 }}>
-            <div>
+            <div style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
+                backgroundColor: "#f5f5f5",
+                boxShadow: "0px 0px 5px 3px rgba(0, 0, 0, 0.15)",
+                marginBottom: "20px"
+            }}>
                 <Pagination pageId={pageId} totalPage={totalPage} />
                 <SaveButton />
+                <ActionBar />
             </div>
             <React.Suspense
                 fallback={(
@@ -117,14 +126,7 @@ const DataProvider = ({ dataset }) => {
             {(state.activeRow > -1) && (
                 <>
                     <Backdrop />
-                    <SampleEditor
-                        style={{
-                            top: 0,
-                            bottom: 0,
-                            right: 0,
-                            left: 0
-                        }}
-                    />
+                    <SampleEditor />
                 </>
             )}
         </DatasetContext.Provider>
@@ -140,7 +142,8 @@ const Backdrop = () => {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: "white"
+                backgroundColor: "white",
+                zIndex: 2
             }}
         >
         </div>

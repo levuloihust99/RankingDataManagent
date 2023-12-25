@@ -11,8 +11,8 @@ export const TitleBar = () => {
                 padding: "10px",
                 display: "flex",
                 flexDirection: "row",
-                minWidth: "1030px"
             }}
+            className="min-width-1000px"
         >
             <Button
                 id="nav-button"

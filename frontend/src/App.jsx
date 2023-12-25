@@ -46,9 +46,30 @@ export const App = () => {
                     />
                     <div
                         id="main-content"
+                        style={{
+                            overflowX: 'auto',
+                        }}
                     >
-                        <TitleBar />
-                        <Outlet />
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                minWidth: "1000px",
+                                maxHeight: "100%",
+                                minHeight: "100%"
+                            }}
+                        >
+                            <TitleBar />
+                            <div
+                                style={{
+                                    flexGrow: 1,
+                                    minHeight: 0,
+                                    overflow: "auto",
+                                }}
+                            >
+                                <Outlet />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </AlertProvider>
