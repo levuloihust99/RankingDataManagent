@@ -18,8 +18,12 @@
 
 }
 
-.query-column > div {
+.multiline-ellipsis {
     display: -webkit-box;
+}
+
+.query-column > div {
+    /* display: -webkit-box; */
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -60,4 +64,9 @@
 
 .data-table tr:last-child td:last-child {
     border-bottom-right-radius: 8px;
+}
+
+.table-body > tr:not(.on-hovering):hover {
+    background-color: #d6d6d6;
+    cursor: pointer;
 }

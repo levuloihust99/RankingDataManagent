@@ -1,19 +1,21 @@
 import React from 'react'
+import clsx from 'clsx'
 import { DatasetContext } from "../context"
 import { MultiContentBox } from "../MultiContentBox"
 import { RowContext } from "./context"
 import "./style.css"
 
-const TableRow = ({ input, outputs }) => {
+const TableRow = ({ rowIdx, item }) => {
+    const [detail, setDetail] = React.useState(false)
     return (
-        <tr>
+        <tr className={clsx(detail && "on-hovering")} onClick={() => setDetail(!detail)}>
             <td className="query-column">
-                <div>
-                    {input}
-                </div>
+                <div
+                    className={clsx(!detail && "multiline-ellipsis")}
+                >{item.input}</div>
             </td>
             <td className="response-column">
-                <MultiContentBox contents={outputs.map(item => item.content)} />
+                <MultiContentBox detail={detail} outputs={item.outputs} />
             </td>
         </tr>
     )
@@ -42,7 +44,7 @@ export const DataTable = () => {
                     })
                     return (
                         <RowContext.Provider value={{ rowIdx: idx }} key={item.sampleId}>
-                            <TableRow input={item.input} outputs={outputs} rowIdx={idx} />
+                            <TableRow rowIdx={idx} item={item} />
                         </RowContext.Provider>
                     )
                 })}

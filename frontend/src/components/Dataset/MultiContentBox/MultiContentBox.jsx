@@ -1,4 +1,5 @@
 import React from 'react'
+import clsx from 'clsx'
 import { Icon, Button } from 'semantic-ui-react'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -6,16 +7,26 @@ import { DatasetContext } from '../context'
 import { RowContext } from '../DataTable/context'
 import "./style.css"
 
-const LocalNavigator = ({ index, total, setIndex }) => {
+const LocalNavigator = ({ index, total, setIndex, generator }) => {
     const { dispatch } = React.useContext(DatasetContext)
     const { rowIdx } = React.useContext(RowContext)
 
     const handleClickPrevious = (event) => {
+        event.stopPropagation()
         if (index > 1) setIndex(index - 1)
     }
 
     const handleClickNext = (event) => {
+        event.stopPropagation()
         if (index < total) setIndex(index + 1)
+    }
+
+    const handleClickEdit = (event) => {
+        event.stopPropagation()
+        dispatch({
+            type: "SET_ACTIVE_ROW",
+            activeRow: rowIdx
+        })
     }
 
     return (
@@ -24,7 +35,9 @@ const LocalNavigator = ({ index, total, setIndex }) => {
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "center",
+                borderBottom: "1px solid rgb(222, 222, 222)",
+                paddingBottom: "5px"
             }}
         >
             <div
@@ -51,36 +64,40 @@ const LocalNavigator = ({ index, total, setIndex }) => {
                     color={index === total ? "grey" : "black"}
                 />
             </div>
+            <div>
+                {generator}
+            </div>
             <div
-                style={{
-                    flexGrow: 4
-                }}
+                // style={{
+                //     flexGrow: 4
+                // }}
             >
                 <FontAwesomeIcon
                     className="action-icon"
                     icon={icon({name: "pen-to-square"})}
                     style={{float: "right"}}
-                    onClick={(e) => dispatch({
-                        type: "SET_ACTIVE_ROW",
-                        activeRow: rowIdx
-                    })}
+                    onClick={handleClickEdit}
                 />
             </div>
         </div>
     )
 }
 
-export const MultiContentBox = ({ contents }) => {
+export const MultiContentBox = ({ outputs, detail }) => {
     const [index, setIndex] = React.useState(1)
-    const content = contents[index - 1]
+    const content = outputs[index - 1].content
+    const generator = outputs[index - 1].metadata.generator
 
     return (
         <>
-            <LocalNavigator setIndex={setIndex} index={index} total={contents.length} />
+            <LocalNavigator setIndex={setIndex} index={index} total={outputs.length} generator={generator} />
             <div
-                className="response-content"
+                className={clsx("response-content",
+                    !detail && "multiline-ellipsis"
+                )}
                 style={{
-                    textAlign: "justify"
+                    textAlign: "justify",
+                    paddingTop: "5px"
                 }}
             >
                 {content}
