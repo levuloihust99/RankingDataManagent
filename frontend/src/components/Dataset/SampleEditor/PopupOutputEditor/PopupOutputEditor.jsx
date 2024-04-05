@@ -63,6 +63,10 @@ export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
         // dispatch action
     }
 
+    const handleCopy = (e) => {
+        navigator.clipboard.writeText(liveContent)
+    }
+
     const fitTextArea = () => {
         inputRef.current.style.height = "auto"
         const fullScrollHeight = inputRef.current.scrollHeight
@@ -91,14 +95,24 @@ export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
                     }}
                 >
                     {!onEditContent ? (
-                        <FontAwesomeIcon
-                            className="action-icon"
-                            icon={icon({ name: "pen-to-square" })}
-                            style={{
-                                marginRight: "8px"
-                            }}
-                            onClick={handleClickEditContent}
-                        />
+                        <>
+                            <FontAwesomeIcon
+                                className="action-icon"
+                                icon={icon({ name: "pen-to-square" })}
+                                style={{
+                                    marginRight: "8px"
+                                }}
+                                onClick={handleClickEditContent}
+                            />
+                            <FontAwesomeIcon
+                                className="action-icon"
+                                icon={icon({ name: "copy", style: "regular" })}
+                                style={{
+                                    marginRight: "8px"
+                                }}
+                                onClick={handleCopy}
+                            />
+                        </>
                     ) : (
                         <>
                             <FontAwesomeIcon

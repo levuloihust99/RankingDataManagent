@@ -8,6 +8,7 @@ import { DataTable } from "./DataTable"
 import { Pagination } from './Pagination'
 import { ErrorPage } from '../ErrorPage/ErrorPage'
 import { SampleEditor } from './SampleEditor'
+import { Comparisons } from './Comparison'
 import { DatasetContext } from './context'
 import { datasetReducer } from './reducer';
 import { SaveButton } from './SaveButton';
@@ -100,8 +101,35 @@ export const Dataset = () => {
     )
 }
 
+const fakeComparisons = [
+    {
+        positives: [
+            {
+                content: "Hôm nay là thứ 7",
+                metadata: {
+                    generator: "levuloi",
+                },
+            },
+            {
+                content: "Ngày mai là thứ 6",
+                metadata: {
+                    generator: "luongvanquyen",
+                },
+            },
+        ],
+        negatives: [
+            {
+                content: "Do you understand?",
+                metadata: {
+                    generator: "onepiece",
+                },
+            },
+        ],
+    },
+]
+
 const DataProvider = ({ dataset }) => {
-    const [state, dispatch] = React.useReducer(datasetReducer, { dataset, activeRow: -1 })
+    const [state, dispatch] = React.useReducer(datasetReducer, { dataset, activeRow: -1, view: "table" })
     React.useEffect(() => {
         dispatch({
             type: "UPDATE_DATASET",
@@ -112,21 +140,28 @@ const DataProvider = ({ dataset }) => {
         <DatasetContext.Provider
             value={{
                 state,
-                dispatch
+                dispatch,
             }}
         >
             <div
-                className="content-box"
+                className='content-box'
                 style={{
-                    display: state.activeRow > -1 ? "none" : "block"
+                    display: state.activeRow > -1 ? "none" : "block",
                 }}
             >
                 <DataTable />
             </div>
-            {(state.activeRow > -1) && (
+            {state.activeRow > -1 && (
                 <>
                     <Backdrop />
-                    <SampleEditor />
+                    {state.view === "rank" && <SampleEditor />}
+                    {state.view === "compare" && (
+                        <Comparisons
+                            comparisons={
+                                state.dataset[state.activeRow].comparisons || []
+                            }
+                        />
+                    )}
                 </>
             )}
         </DatasetContext.Provider>

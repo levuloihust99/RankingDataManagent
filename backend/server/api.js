@@ -20,6 +20,24 @@ app.get("/paginated_data", async (req, res) => {
     res.send({ data: docs })
 })
 
+app.post("/update_comparisons", async (req, res) => {
+    console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} POST /update_comparisons`)
+    const { sampleId, comparisons } = req.body
+    try {
+        await RankingSampleCollection.findOneAndUpdate(
+            { sampleId },
+            {
+                $set: {
+                    comparisons
+                }
+            }
+        )
+        res.sendStatus(200)
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
+
 app.get("/total_data", async (req, res) => {
     console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} GET /total_data`)
     const count = await RankingSampleCollection.count({})

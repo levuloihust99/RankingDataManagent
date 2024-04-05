@@ -19,6 +19,17 @@ const RankingOutputSchema = new Schema({
     }
 }, { _id: false })
 
+const Comparison = new Schema({
+    positives: {
+        type: [RankingOutputSchema],
+        default: []
+    },
+    negatives: {
+        type: [RankingOutputSchema],
+        default: []
+    },
+}, { _id: false })
+
 const RankingSampleSchema = new Schema({
     sampleId: {
         type: Schema.Types.Mixed,
@@ -39,6 +50,10 @@ const RankingSampleSchema = new Schema({
         type: [RankingOutputSchema],
         required: true
     },
+    comparisons: {
+        type: [Comparison],
+        required: false
+    },
     metadata: {
         type: Object,
         default: {}
@@ -50,4 +65,4 @@ const RankingSampleSchema = new Schema({
 
 RankingSampleSchema.index({ createdAt: 1 })
 
-export const RankingSampleCollection = mongoose.model("RankingSample", RankingSampleSchema, "ranking-samples")
+export const RankingSampleCollection = mongoose.model("RankingSample", RankingSampleSchema, "ranking-samples-filtered")

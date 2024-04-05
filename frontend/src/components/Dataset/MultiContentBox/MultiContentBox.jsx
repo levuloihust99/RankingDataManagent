@@ -24,7 +24,15 @@ const LocalNavigator = ({ index, total, setIndex, generator }) => {
     const handleClickEdit = (event) => {
         event.stopPropagation()
         dispatch({
-            type: "SET_ACTIVE_ROW",
+            type: "SET_RANK_VIEW",
+            activeRow: rowIdx
+        })
+    }
+
+    const handleClickCompare = (event) => {
+        event.stopPropagation()
+        dispatch({
+            type: "SET_COMPARE_VIEW",
             activeRow: rowIdx
         })
     }
@@ -64,14 +72,25 @@ const LocalNavigator = ({ index, total, setIndex, generator }) => {
                     color={index === total ? "grey" : "black"}
                 />
             </div>
-            <div>
+            <div
+                style={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
+            >
                 {generator}
             </div>
             <div
-                // style={{
-                //     flexGrow: 4
-                // }}
+                style={{
+                    flexGrow: 0,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    columnGap: "5px",
+                }}
             >
+                <FontAwesomeIcon
+                    className="action-icon"
+                    icon={icon({name: "code-compare"})}
+                    style={{float: "right"}}
+                    onClick={handleClickCompare}
+                />
                 <FontAwesomeIcon
                     className="action-icon"
                     icon={icon({name: "pen-to-square"})}

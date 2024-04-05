@@ -37,11 +37,11 @@ export const DataTable = () => {
                 className="table-body"
             >
                 {dataset.map((item, idx) => {
-                    const outputs = item.outputs.sort((a, b) => {
-                        if (a.score === b.score) return 0
-                        if (a.score > b.score) return 1
-                        return -1 // a.score < b.score
-                    })
+                    // const outputs = item.outputs.sort((a, b) => {
+                    //     if (a.score === b.score) return 0
+                    //     if (a.score > b.score) return 1
+                    //     return -1 // a.score < b.score
+                    // })
                     return (
                         <RowContext.Provider value={{ rowIdx: idx }} key={item.sampleId}>
                             <TableRow rowIdx={idx} item={item} />

@@ -36,3 +36,20 @@
   align-items: center;
   justify-content: flex-start;
 }
+
+.overflow-ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+}
+
+.header-block {
+  background-color: rgb(86, 143, 150);
+  font-variant: small-caps;
+  font-size: 1.25em;
+  padding: 8px;
+  color: white;
+  line-height: 1.5;
+  font-weight: bold;
+}

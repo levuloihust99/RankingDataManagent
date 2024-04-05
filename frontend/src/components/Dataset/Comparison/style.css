@@ -1,0 +1,86 @@
+.comparisons-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    padding: 0 0 10px 0;
+    z-index: 3;
+}
+
+.comparisons-back-data {
+    color: rgb(63, 63, 63);
+}
+
+.comparisons-back-data:hover {
+    color: rgb(0, 158, 247);
+    cursor: pointer;
+}
+
+.compare-table {
+    table-layout: fixed;
+    min-height: 0;
+    max-height: 100%;
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.compare-table-header {
+    background-color: rgb(73, 160, 154);
+    color: white;
+    font-size: 1.25em;
+    line-height: 1.5;
+    padding: 8px;
+}
+
+.card-toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: 5px;
+    margin-left: 8px;
+}
+
+.card-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.card-input-textarea {
+    resize: none;
+    overflow-y: auto;
+    padding: 0;
+    outline: none;
+    border: 0;
+    height: 100%;
+    width: 100%;
+    text-align: justify;
+    font-family: inherit;
+    color: inherit;
+}
+
+/* .actions-menu-item {
+
+} */
+
+.actions-menu-item:hover {
+    cursor: pointer;
+    color: rgb(202, 90, 84);
+    background-color: rgb(250, 238, 237);
+}
