@@ -265,6 +265,8 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
 const ComparisonRow = ({ positives, negatives, idx }) => {
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
     const [show, setShow] = React.useState(false)
+    const [showCriterion, setShowCriterion] = React.useState(false)
+    const [criterion, setCriterion] = React.useState("conciseness")
     const menuRef = React.useRef()
 
     const handleCreatePositive = () => {
@@ -346,6 +348,15 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
         setShow(false)
         datasetDispatch({
             type: "DELETE_COMPARE_ROW",
+            rowIdx: state.activeRow,
+            comparisonIdx: idx,
+        })
+    }
+
+    const handleFormat = (e) => {
+        datasetDispatch({
+            type: "FORMAT_NEGATIVES",
+            criterion,
             rowIdx: state.activeRow,
             comparisonIdx: idx,
         })
@@ -438,32 +449,118 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
                                 <div
                                     ref={menuRef}
                                     style={{
-                                        minWidth: "125px",
+                                        minWidth: "150px",
                                         backgroundColor: "white",
                                         position: "absolute",
                                         right: "-5px",
                                         bottom: "25px",
                                         boxShadow: "0px 0px 20px rgba(34, 36, 38, 0.15)",
                                         borderRadius: "8px",
+                                        fontSize: "1.1em",
                                     }}
                                 >
-                                    <div
-                                        className='actions-menu-item'
-                                        style={{
-                                            padding: "10px",
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            justifyContent: "flex-start",
-                                            alignItems: "center",
-                                            columnGap: "5px",
-                                            fontSize: "1.25em",
-                                        }}
-                                        onClick={handleDeleteRow}
-                                    >
+                                    <div className='actions-menu-item' onClick={handleDeleteRow}>
                                         <FontAwesomeIcon
                                             icon={icon({ name: "trash-can", style: "regular" })}
                                         />
                                         <span>Delete</span>
+                                    </div>
+                                    <div
+                                        className='actions-menu-item'
+                                        onMouseEnter={(e) => setShowCriterion(true)}
+                                        onMouseLeave={(e) => setShowCriterion(false)}
+                                        onClick={handleFormat}
+                                    >
+                                        <FontAwesomeIcon icon={icon({ name: "check-double" })} />
+                                        <span>Format</span>
+                                        {showCriterion && (
+                                            <div
+                                                style={{
+                                                    minWidth: "160px",
+                                                    backgroundColor: "white",
+                                                    color: "initial",
+                                                    position: "absolute",
+                                                    left: "calc(100% - 8px)",
+                                                    boxShadow:
+                                                        "0px 0px 20px rgba(34, 36, 38, 0.15)",
+                                                    borderRadius: "8px",
+                                                    fontSize: "0.95em",
+                                                }}
+                                            >
+                                                <div
+                                                    className='actions-menu-item'
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setCriterion("conciseness")
+                                                    }}
+                                                >
+                                                    <span>Conciseness</span>
+                                                    {criterion === "conciseness" && (
+                                                        <div
+                                                            style={{
+                                                                flexGrow: 1,
+                                                                paddingRight: "10px",
+                                                            }}
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={icon({ name: "check" })}
+                                                                style={{
+                                                                    float: "right",
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div
+                                                    className='actions-menu-item'
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setCriterion("coverage")
+                                                    }}
+                                                >
+                                                    <span>Coverage</span>
+                                                    {criterion === "coverage" && (
+                                                        <div
+                                                            style={{
+                                                                flexGrow: 1,
+                                                                paddingRight: "10px",
+                                                            }}
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={icon({ name: "check" })}
+                                                                style={{
+                                                                    float: "right",
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div
+                                                    className='actions-menu-item'
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setCriterion("coherence")
+                                                    }}
+                                                >
+                                                    <span>Coherence</span>
+                                                    {criterion === "coherence" && (
+                                                        <div
+                                                            style={{
+                                                                flexGrow: 1,
+                                                                paddingRight: "10px",
+                                                            }}
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={icon({ name: "check" })}
+                                                                style={{
+                                                                    float: "right",
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

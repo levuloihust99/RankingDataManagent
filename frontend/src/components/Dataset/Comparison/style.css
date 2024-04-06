@@ -75,9 +75,14 @@
     color: inherit;
 }
 
-/* .actions-menu-item {
-
-} */
+.actions-menu-item {
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    column-gap: 5px;
+}
 
 .actions-menu-item:hover {
     cursor: pointer;

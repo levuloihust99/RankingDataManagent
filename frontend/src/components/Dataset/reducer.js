@@ -43,6 +43,8 @@ export const datasetReducer = (state, action) => {
             return deleteCompareRow(state, action)
         case "TEMPLATE_COMPARISONS":
             return templateComparison(state, action)
+        case "FORMAT_NEGATIVES":
+            return formatNegatives(state, action)
         default:
             return state
     }
@@ -198,6 +200,19 @@ function templateComparison(state, action) {
         const comparisons = draft.dataset[action.rowIdx].comparisons
         if (comparisons == null || comparisons.length === 0) {
             draft.dataset[action.rowIdx].comparisons = action.templateComparisons
+        }
+    })
+    return nextState
+}
+
+function formatNegatives(state, action) {
+    const { rowIdx, comparisonIdx, criterion } = action
+    const nextState = produce(state, (draft) => {
+        const comparison = draft.dataset[rowIdx].comparisons[comparisonIdx]
+        let i = comparison.negatives.length
+        for (const item of comparison.negatives) {
+            item.metadata.generator = `Non-${criterion}-${i}`
+            i -= 1
         }
     })
     return nextState
