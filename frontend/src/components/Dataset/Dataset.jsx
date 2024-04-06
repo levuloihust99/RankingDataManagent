@@ -166,6 +166,18 @@ const DataProvider = ({ dataset }) => {
                             type: "ZERO_ACTIVE_ROW",
                         })
                     }
+                } else if (e.keyCode == "32") {
+                    if (stateRef.current.view === "rank") {
+                        e.preventDefault()
+                        dispatch({
+                            type: "SWITCH_COMPARE_VIEW",
+                        })
+                    } else if (stateRef.current.view === "compare") {
+                        e.preventDefault()
+                        dispatch({
+                            type: "SWITCH_RANK_VIEW",
+                        })
+                    }
                 }
             }
         }
