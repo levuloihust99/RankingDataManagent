@@ -163,7 +163,7 @@ const DataProvider = ({ dataset }) => {
                     } else {
                         navigate(`/dataset/page/${pageIdRef.current - 1}`)
                         dispatch({
-                            type: "ZERO_ACTIVE_ROW",
+                            type: "MAX_ACTIVE_ROW",
                         })
                     }
                 } else if (e.keyCode == "32") {

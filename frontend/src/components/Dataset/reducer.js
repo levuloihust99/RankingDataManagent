@@ -51,6 +51,8 @@ export const datasetReducer = (state, action) => {
             return { ...state, activeRow: state.activeRow - 1 }
         case "ZERO_ACTIVE_ROW":
             return { ...state, activeRow: 0 }
+        case "MAX_ACTIVE_ROW":
+            return { ...state, activeRow: state.dataset.length - 1 }
         default:
             return state
     }
