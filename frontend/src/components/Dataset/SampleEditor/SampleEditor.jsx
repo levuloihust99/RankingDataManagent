@@ -38,7 +38,8 @@ export const SampleEditor = () => {
                 if (entry.target === textareaRef.current) {
                     clearTimeout(task.current)
                     task.current = setTimeout(() => {
-                        fitTextArea()
+                        // after 100ms timeout, textareaRef.current can be null
+                        if (textareaRef.current != null) fitTextArea()
                     }, 100)
                 }
             }
@@ -50,6 +51,11 @@ export const SampleEditor = () => {
             }
         }
     }, [])
+
+    React.useEffect(() => {
+        setPrevLiveInput(input)
+        setLiveInput(input)
+    }, [input])
 
     React.useEffect(() => {
         setLiveMetadata(JSON.stringify(metadata, null, 4))

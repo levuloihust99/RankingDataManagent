@@ -9,6 +9,10 @@ app.get("/paginated_data", async (req, res) => {
     console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} GET /paginated_data`)
     const query = req.query
     const pageNum = parseInt(query.pageNum)
+    if (isNaN(pageNum) || pageNum <= 0) {
+        res.status(400).send({ data: [] })
+        return
+    }
     const recordsPerPage = parseInt(query.recordsPerPage)
     const offset = (pageNum - 1) * recordsPerPage
     const docs = await RankingSampleCollection

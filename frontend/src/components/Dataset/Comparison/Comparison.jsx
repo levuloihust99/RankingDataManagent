@@ -27,7 +27,8 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                 if (entry.target === textareaRef.current) {
                     clearTimeout(task.current)
                     task.current = setTimeout(() => {
-                        fitTextArea()
+                        // after 100ms timeout, textareaRef.current can be null
+                        if (textareaRef.current != null) fitTextArea()
                     }, 100)
                 }
             }

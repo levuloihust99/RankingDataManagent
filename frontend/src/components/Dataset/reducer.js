@@ -45,6 +45,12 @@ export const datasetReducer = (state, action) => {
             return templateComparison(state, action)
         case "FORMAT_NEGATIVES":
             return formatNegatives(state, action)
+        case "NEXT_EXAMPLE":
+            return { ...state, activeRow: state.activeRow + 1 }
+        case "PREVIOUS_EXAMPLE":
+            return { ...state, activeRow: state.activeRow - 1 }
+        case "ZERO_ACTIVE_ROW":
+            return { ...state, activeRow: 0 }
         default:
             return state
     }
