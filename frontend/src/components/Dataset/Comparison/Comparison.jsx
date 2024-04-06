@@ -627,6 +627,7 @@ const CompareTable = ({ comparisons }) => {
 export const Comparisons = ({ comparisons }) => {
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const saveRef = React.useRef()
 
     const handleSwitchView = (e) => {
         datasetDispatch({
@@ -658,6 +659,21 @@ export const Comparisons = ({ comparisons }) => {
             }
         )
     }
+
+    React.useEffect(() => {
+        const handler = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+                e.preventDefault()
+                if (saveRef.current) {
+                    saveRef.current.click()
+                }
+            }
+        }
+        document.addEventListener("keydown", handler)
+        return () => {
+            document.removeEventListener("keydown", handler)
+        }
+    })
 
     const handleRevealID = (e) => {
         doCopy(state.dataset[state.activeRow].sampleId)
@@ -755,7 +771,7 @@ export const Comparisons = ({ comparisons }) => {
                         </Button>
                         <Button color='teal' onClick={handleSave}>
                             <FontAwesomeIcon icon={icon({ name: "floppy-disk" })} />
-                            <span style={{ marginLeft: "5px" }}>Save</span>
+                            <span ref={saveRef} style={{ marginLeft: "5px" }}>Save</span>
                         </Button>
                         <Button color='teal' onClick={handleRevealID}>
                             <span>Reveal ID</span>
