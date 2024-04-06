@@ -41,6 +41,8 @@ export const datasetReducer = (state, action) => {
             return deleteCompareItem(state, action)
         case "DELETE_COMPARE_ROW":
             return deleteCompareRow(state, action)
+        case "TEMPLATE_COMPARISONS":
+            return templateComparison(state, action)
         default:
             return state
     }
@@ -187,6 +189,16 @@ function deleteCompareRow(state, action) {
             ...comparisons.slice(comparisonIdx + 1),
         ]
         draft.dataset[rowIdx].comparisons = nextComparisons
+    })
+    return nextState
+}
+
+function templateComparison(state, action) {
+    const nextState = produce(state, (draft) => {
+        const comparisons = draft.dataset[action.rowIdx].comparisons
+        if (comparisons == null || comparisons.length === 0) {
+            draft.dataset[action.rowIdx].comparisons = action.templateComparisons
+        }
     })
     return nextState
 }

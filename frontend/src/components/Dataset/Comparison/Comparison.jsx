@@ -441,7 +441,7 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
                                         backgroundColor: "white",
                                         position: "absolute",
                                         right: "-5px",
-                                        top: "25px",
+                                        bottom: "25px",
                                         boxShadow: "0px 0px 20px rgba(34, 36, 38, 0.15)",
                                         borderRadius: "8px",
                                     }}
@@ -564,6 +564,48 @@ export const Comparisons = ({ comparisons }) => {
         navigator.clipboard.writeText(state.dataset[state.activeRow].sampleId)
     }
 
+    const handleCreateTemplate = (e) => {
+        datasetDispatch({
+            type: "TEMPLATE_COMPARISONS",
+            rowIdx: state.activeRow,
+            templateComparisons: [
+                // {
+                //     positives: [
+                //         {
+                //             content: "",
+                //             metadata: {
+                //                 generator: "ChatGPT-Plus",
+                //             },
+                //         },
+                //     ],
+                //     negatives: [],
+                // },
+                // {
+                //     positives: [
+                //         {
+                //             content: "",
+                //             metadata: {
+                //                 generator: "claude-3-haiku",
+                //             },
+                //         },
+                //     ],
+                //     negatives: [],
+                // },
+                {
+                    positives: [
+                        {
+                            content: "",
+                            metadata: {
+                                generator: "gemini-1.5-pro",
+                            },
+                        },
+                    ],
+                    negatives: [],
+                },
+            ],
+        })
+    }
+
     return (
         <div className='comparisons-container'>
             <div
@@ -619,30 +661,14 @@ export const Comparisons = ({ comparisons }) => {
                         <Button color='teal' onClick={handleRevealID}>
                             <span>Reveal ID</span>
                         </Button>
+                        <Button color='teal' onClick={handleCreateTemplate}>
+                            <span>Template</span>
+                        </Button>
                     </div>
                 </div>
-                <HeaderBlock text='COMPARISONS' />
+                <div className='header-block'>COMPARISONS</div>
             </div>
             <CompareTable comparisons={comparisons} />
-        </div>
-    )
-}
-
-const HeaderBlock = ({ text }) => {
-    return (
-        <div
-            style={{
-                backgroundColor: "rgb(86, 143, 150)",
-                fontVariant: "small-caps",
-                fontSize: "1.25em",
-                padding: "8px",
-                color: "white",
-                lineHeight: 1.5,
-                // marginTop: "20px",
-                fontWeight: "bold",
-            }}
-        >
-            {text}
         </div>
     )
 }
