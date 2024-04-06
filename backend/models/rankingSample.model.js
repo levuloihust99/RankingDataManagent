@@ -65,4 +65,4 @@ const RankingSampleSchema = new Schema({
 
 RankingSampleSchema.index({ createdAt: 1 })
 
-export const RankingSampleCollection = mongoose.model("RankingSample", RankingSampleSchema, "ranking-samples-filtered")
+export const RankingSampleCollection = mongoose.model("RankingSample", RankingSampleSchema, process.env.MONGO_COLLECTION)
