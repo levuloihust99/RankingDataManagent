@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { DatasetContext } from "../context"
 import { DndCard } from "./DndCard"
 import { VerticalSeparator } from "../../common/Separator"
+import { doCopy } from "../../../lib/utils"
 import "./style.css"
 
 export const SampleEditor = () => {
@@ -84,12 +85,12 @@ export const SampleEditor = () => {
     }
 
     const handleCopy = (e) => {
-        navigator.clipboard.writeText(liveInput)
+        doCopy(liveInput)
     }
 
     const handleGeneratePrompt = (e) => {
         const prompt = `Viết một đoạn văn dài tối đa 3 câu để tóm tắt văn bản sau đây:\n"""\n${liveInput}\n"""`
-        navigator.clipboard.writeText(prompt)
+        doCopy(prompt)
     }
 
     const fitTextArea = () => {

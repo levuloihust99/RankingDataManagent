@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CodeBlock, dracula, github } from "react-code-blocks";
 import { HorizontalSeparator } from '../../../common/Separator';
 import { DatasetContext } from '../../context';
+import { doCopy } from '../../../../lib/utils';
 import "./style.css"
 
 export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
@@ -64,7 +65,7 @@ export const PopupOutputEditor = ({ item, rowIdx, outputIdx }) => {
     }
 
     const handleCopy = (e) => {
-        navigator.clipboard.writeText(liveContent)
+        doCopy(liveContent)
     }
 
     const fitTextArea = () => {

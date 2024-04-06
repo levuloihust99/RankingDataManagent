@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { DatasetContext } from "../context"
 import { AlertContext } from "../../Alert/context"
 import { updateComparisons } from "../../../api/crud"
+import { doCopy } from "../../../lib/utils"
 import "./style.css"
 
 const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, deleteFn }) => {
@@ -561,7 +562,7 @@ export const Comparisons = ({ comparisons }) => {
     }
 
     const handleRevealID = (e) => {
-        navigator.clipboard.writeText(state.dataset[state.activeRow].sampleId)
+        doCopy(state.dataset[state.activeRow].sampleId)
     }
 
     const handleCreateTemplate = (e) => {
