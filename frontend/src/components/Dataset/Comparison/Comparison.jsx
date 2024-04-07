@@ -100,17 +100,16 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
             return
         }
         setShowActions(true)
-        e.stopPropagation()
         const closeHandler = (event) => {
+            document.removeEventListener("click", closeHandler)
             let element = event.target
             do {
                 if (actionsRef.current && element === actionsRef.current) return
                 element = element.parentNode
             } while (element)
-            document.removeEventListener("click", closeHandler)
             setShowActions(false)
         }
-        document.addEventListener("click", closeHandler)
+        setTimeout(() => document.addEventListener("click", closeHandler), 0)
     }
 
     const handleClickDelete = (e) => {
@@ -119,6 +118,10 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
             type: cardType,
             cardIdx: idx,
         })
+    }
+
+    const handleCopy = (e) => {
+        doCopy(liveContent)
     }
 
     return (
@@ -172,6 +175,11 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                                     onClick={(e) => cloneFn({ content: liveContent })}
                                 />
                             )}
+                            <FontAwesomeIcon
+                                className='action-icon'
+                                icon={icon({name: "copy", style: "regular"})}
+                                onClick={handleCopy}
+                            />
                         </>
                     )}
                 </div>
@@ -332,17 +340,16 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
             return
         }
         setShow(true)
-        e.stopPropagation()
         const closeHandler = (event) => {
+            document.removeEventListener("click", closeHandler)
             let element = event.target
             do {
                 if (menuRef.current && element === menuRef.current) return
                 element = element.parentNode
             } while (element)
-            document.removeEventListener("click", closeHandler)
             setShow(false)
         }
-        document.addEventListener("click", closeHandler)
+        setTimeout(() => document.addEventListener("click", closeHandler), 0)
     }
 
     const handleDeleteRow = (e) => {
@@ -624,10 +631,17 @@ const CompareTable = ({ comparisons }) => {
     )
 }
 
-export const Comparisons = ({ comparisons }) => {
+export const Comparisons = ({ comparisons, visible = true }) => {
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const stateRef = React.useRef(state)
+    const [showActionsMenu, setShowActionsMenu] = React.useState(false)
+    const actionsMenuRef = React.useRef()
     const saveRef = React.useRef()
+
+    React.useEffect(() => {
+        stateRef.current = state
+    }, [state])
 
     const handleSwitchView = (e) => {
         datasetDispatch({
@@ -635,38 +649,46 @@ export const Comparisons = ({ comparisons }) => {
         })
     }
 
-    const handleSave = (e) => {
-        updateComparisons({ sampleId: state.dataset[state.activeRow].sampleId, comparisons }).then(
-            async (r) => {
-                if (r.status === 200) {
-                    alertDispatch({
-                        type: "ADD_MESSAGE",
-                        item: {
-                            type: "success",
-                            message: "Saved successfully!",
-                        },
-                    })
-                } else {
-                    const err = await r.text()
-                    alertDispatch({
-                        type: "ADD_MESSAGE",
-                        item: {
-                            type: "failed",
-                            message: err,
-                        },
-                    })
-                }
+    const save = ({ sampleId, comparisons }) => {
+        updateComparisons({ sampleId, comparisons }).then(async (resp) => {
+            if (resp.status === 200) {
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "success",
+                        message: "Saved successfully!",
+                    },
+                })
+            } else {
+                const err = await resp.text()
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "failed",
+                        message: err,
+                    },
+                })
             }
-        )
+        })
+    }
+
+    const handleSave = (e) => {
+        const ex = state.dataset[state.activeRow]
+        save({
+            sampleId: ex.sampleId,
+            comparisons: ex.comparisons,
+        })
     }
 
     React.useEffect(() => {
         const handler = (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === "s") {
                 e.preventDefault()
-                if (saveRef.current) {
-                    saveRef.current.click()
-                }
+                const ex = stateRef.current.dataset[stateRef.current.activeRow]
+                save({
+                    sampleId: ex.sampleId,
+                    comparisons: ex.comparisons,
+                })
             }
         }
         document.addEventListener("keydown", handler)
@@ -721,8 +743,29 @@ export const Comparisons = ({ comparisons }) => {
         })
     }
 
+    const handleClickActionsMenu = (e) => {
+        if (showActionsMenu) {
+            setShowActionsMenu(false)
+            return
+        }
+        setShowActionsMenu(true)
+        const closeHandler = (event) => {
+            document.removeEventListener("click", closeHandler)
+            let element = event.target
+            do {
+                if (actionsMenuRef.current && element === actionsMenuRef.current) return
+                element = element.parentNode
+            } while (element)
+            setShowActionsMenu(false)
+        }
+        setTimeout(() => document.addEventListener("click", closeHandler), 0)
+    }
+
     return (
-        <div className='comparisons-container'>
+        <div
+            className='comparisons-container'
+            style={{ ...(visible ? { zIndex: 3 } : { zIndex: 1 }) }}
+        >
             <div
                 style={{
                     position: "sticky",
@@ -754,7 +797,7 @@ export const Comparisons = ({ comparisons }) => {
                         }}
                     >
                         <FontAwesomeIcon icon={icon({ name: "angle-left" })} />
-                        <span style={{ marginLeft: "5px" }}> Data</span>
+                        <span style={{ marginLeft: "5px" }}>Data</span>
                     </div>
                     <div
                         style={{
@@ -762,22 +805,59 @@ export const Comparisons = ({ comparisons }) => {
                             display: "flex",
                             flexDirection: "row-reverse",
                             justifyContent: "flex-end",
+                            alignItems: "center",
                             columnGap: "10px",
                         }}
                     >
-                        <Button color='teal' onClick={handleSwitchView}>
-                            <FontAwesomeIcon icon={icon({ name: "sliders" })} />
-                            <span style={{ marginLeft: "5px" }}>Switch</span>
-                        </Button>
-                        <Button color='teal' onClick={handleSave}>
-                            <FontAwesomeIcon icon={icon({ name: "floppy-disk" })} />
-                            <span ref={saveRef} style={{ marginLeft: "5px" }}>Save</span>
-                        </Button>
-                        <Button color='teal' onClick={handleRevealID}>
-                            <span>Reveal ID</span>
-                        </Button>
+                        <div style={{ position: "relative" }}>
+                            <FontAwesomeIcon
+                                icon={icon({ name: "ellipsis-vertical" })}
+                                className='action-icon'
+                                onClick={handleClickActionsMenu}
+                            />
+                            <div
+                                ref={actionsMenuRef}
+                                style={{
+                                    ...{
+                                        minWidth: "160px",
+                                        backgroundColor: "white",
+                                        color: "initial",
+                                        position: "absolute",
+                                        right: "calc(100% + 8px)",
+                                        top: 0,
+                                        boxShadow: "0px 0px 20px rgba(34, 36, 38, 0.15)",
+                                        borderRadius: "8px",
+                                        overflow: "hidden",
+                                        fontWeight: "bold",
+                                    },
+                                    ...(showActionsMenu ? {} : { display: "none" }),
+                                }}
+                            >
+                                <div className='actions-menu-item teal'>
+                                    <FontAwesomeIcon
+                                        icon={icon({ name: "floppy-disk" })}
+                                        onClick={handleSave}
+                                    />
+                                    <span ref={saveRef} style={{ marginLeft: "5px" }}>
+                                        Save
+                                    </span>
+                                </div>
+                                <div className='actions-menu-item teal'>
+                                    <FontAwesomeIcon
+                                        icon={icon({ name: "sliders" })}
+                                        onClick={handleSwitchView}
+                                    />
+                                    <span style={{ marginLeft: "5px" }}>Switch</span>
+                                </div>
+                                <div className='actions-menu-item teal' onClick={handleRevealID}>
+                                    <FontAwesomeIcon icon={icon({ name: "key" })} />
+                                    <span style={{ marginLeft: "5px" }}>Reveal ID</span>
+                                </div>
+                            </div>
+                        </div>
                         <Button color='teal' onClick={handleCreateTemplate}>
-                            <span>Template</span>
+                            <FontAwesomeIcon icon={icon({ name: "code" })} />
+                            <span style={{ marginLeft: "5px" }}>Template</span>
                         </Button>
                     </div>
                 </div>

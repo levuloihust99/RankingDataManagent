@@ -4,11 +4,12 @@
     bottom: 0;
     left: 0;
     right: 0;
-    flex-grow: 1;
+    /* flex-grow: 1; */
     height: 100%;
     width: 100%;
-    padding: 0 0 10px 0;
-    z-index: 3;
+    /* padding: 0 0 10px 0; */
+    /* z-index: 3; */
+    overflow: auto;
 }
 
 .comparisons-back-data {
@@ -88,4 +89,10 @@
     cursor: pointer;
     color: rgb(202, 90, 84);
     background-color: rgb(250, 238, 237);
+}
+
+.actions-menu-item.teal:hover {
+    /* background-color: #009c95; */
+    color: white;
+    background-color: #00B5AD;
 }

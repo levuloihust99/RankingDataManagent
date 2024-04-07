@@ -204,13 +204,12 @@ const DataProvider = ({ dataset }) => {
             </div>
             {state.activeRow > -1 && (
                 <>
+                    <SampleEditor visible={state.view === "rank"} />
+                    <Comparisons
+                        visible={state.view === "compare"}
+                        comparisons={state.dataset[state.activeRow].comparisons || []}
+                    />
                     <Backdrop />
-                    {state.view === "rank" && <SampleEditor />}
-                    {state.view === "compare" && (
-                        <Comparisons
-                            comparisons={state.dataset[state.activeRow].comparisons || []}
-                        />
-                    )}
                 </>
             )}
         </DatasetContext.Provider>
