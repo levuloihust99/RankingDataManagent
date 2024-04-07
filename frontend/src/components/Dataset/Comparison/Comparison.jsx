@@ -631,6 +631,42 @@ const CompareTable = ({ comparisons }) => {
     )
 }
 
+const templateComparisons = [
+    // {
+    //     positives: [
+    //         {
+    //             content: "",
+    //             metadata: {
+    //                 generator: "ChatGPT-Plus",
+    //             },
+    //         },
+    //     ],
+    //     negatives: [],
+    // },
+    // {
+    //     positives: [
+    //         {
+    //             content: "",
+    //             metadata: {
+    //                 generator: "claude-3-haiku",
+    //             },
+    //         },
+    //     ],
+    //     negatives: [],
+    // },
+    {
+        positives: [
+            {
+                content: "",
+                metadata: {
+                    generator: "gemini-1.5-pro",
+                },
+            },
+        ],
+        negatives: [],
+    },
+]
+
 export const Comparisons = ({ comparisons, visible = true }) => {
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
@@ -689,6 +725,12 @@ export const Comparisons = ({ comparisons, visible = true }) => {
                     sampleId: ex.sampleId,
                     comparisons: ex.comparisons,
                 })
+            } else if (e.key === "a") {
+                datasetDispatch({
+                    type: "TEMPLATE_COMPARISONS",
+                    rowIdx: stateRef.current.activeRow,
+                    templateComparisons,
+                })
             }
         }
         document.addEventListener("keydown", handler)
@@ -705,41 +747,7 @@ export const Comparisons = ({ comparisons, visible = true }) => {
         datasetDispatch({
             type: "TEMPLATE_COMPARISONS",
             rowIdx: state.activeRow,
-            templateComparisons: [
-                // {
-                //     positives: [
-                //         {
-                //             content: "",
-                //             metadata: {
-                //                 generator: "ChatGPT-Plus",
-                //             },
-                //         },
-                //     ],
-                //     negatives: [],
-                // },
-                // {
-                //     positives: [
-                //         {
-                //             content: "",
-                //             metadata: {
-                //                 generator: "claude-3-haiku",
-                //             },
-                //         },
-                //     ],
-                //     negatives: [],
-                // },
-                {
-                    positives: [
-                        {
-                            content: "",
-                            metadata: {
-                                generator: "gemini-1.5-pro",
-                            },
-                        },
-                    ],
-                    negatives: [],
-                },
-            ],
+            templateComparisons,
         })
     }
 
