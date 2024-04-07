@@ -177,7 +177,7 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                             )}
                             <FontAwesomeIcon
                                 className='action-icon'
-                                icon={icon({name: "copy", style: "regular"})}
+                                icon={icon({ name: "copy", style: "regular" })}
                                 onClick={handleCopy}
                             />
                         </>
@@ -833,20 +833,14 @@ export const Comparisons = ({ comparisons, visible = true }) => {
                                     ...(showActionsMenu ? {} : { display: "none" }),
                                 }}
                             >
-                                <div className='actions-menu-item teal'>
-                                    <FontAwesomeIcon
-                                        icon={icon({ name: "floppy-disk" })}
-                                        onClick={handleSave}
-                                    />
+                                <div className='actions-menu-item teal' onClick={handleSave}>
+                                    <FontAwesomeIcon icon={icon({ name: "floppy-disk" })} />
                                     <span ref={saveRef} style={{ marginLeft: "5px" }}>
                                         Save
                                     </span>
                                 </div>
-                                <div className='actions-menu-item teal'>
-                                    <FontAwesomeIcon
-                                        icon={icon({ name: "sliders" })}
-                                        onClick={handleSwitchView}
-                                    />
+                                <div className='actions-menu-item teal' onClick={handleSwitchView}>
+                                    <FontAwesomeIcon icon={icon({ name: "sliders" })} />
                                     <span style={{ marginLeft: "5px" }}>Switch</span>
                                 </div>
                                 <div className='actions-menu-item teal' onClick={handleRevealID}>
