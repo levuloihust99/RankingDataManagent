@@ -809,11 +809,10 @@ export const Comparisons = ({ comparisons, visible = true }) => {
                             columnGap: "10px",
                         }}
                     >
-                        <div style={{ position: "relative" }}>
+                        <div style={{ position: "relative" }} onClick={handleClickActionsMenu}>
                             <FontAwesomeIcon
                                 icon={icon({ name: "ellipsis-vertical" })}
                                 className='action-icon'
-                                onClick={handleClickActionsMenu}
                             />
                             <div
                                 ref={actionsMenuRef}
