@@ -34,7 +34,7 @@ fi
 if [ -n "$2" ]; then
     CONTAINER_ID="$2"
 else
-    CONTAINER_ID=rankingdatamanagement-mongo-1
+    CONTAINER_ID=rankingdatamanagent-mongo-1
 fi
 
 docker exec -i ${CONTAINER_ID} sh -c 'mongorestore -u '${MONGO_USERNAME}' -p '${MONGO_PASSWORD}' --archive --gzip' < $1
