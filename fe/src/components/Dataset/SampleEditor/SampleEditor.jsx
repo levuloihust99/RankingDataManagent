@@ -44,7 +44,7 @@ export const SampleEditor = ({ visible = true }) => {
                 }
             }
         })
-        observer.observe(textareaRef.current)
+        if (textareaRef.current) observer.observe(textareaRef.current)
         return () => {
             if (textareaRef.current) {
                 observer.unobserve(textareaRef.current)
@@ -62,7 +62,7 @@ export const SampleEditor = ({ visible = true }) => {
     }, [metadata])
 
     React.useEffect(() => {
-        fitTextArea()
+        if (textareaRef.current) fitTextArea()
     }, [liveInput])
 
     const handleOnChangeInput = (e) => {
@@ -117,10 +117,9 @@ export const SampleEditor = ({ visible = true }) => {
     const renderInputArea = () => {
         return (
             <div
-                className='rounded-corner-container column-flex-container'
+                className='rounded-corner-container column-flex-container sample-editor-input-container'
                 style={{
                     marginBottom: "10px",
-                    flexGrow: 1,
                     margin: "10px 10px 10px 20px",
                 }}
             >
@@ -275,7 +274,7 @@ export const SampleEditor = ({ visible = true }) => {
             <div className='header-block'>MAIN CONTENT</div>
             <div className='sample-editor-main-area'>
                 {renderInputArea()}
-                <VerticalSeparator width='20px' />
+                <VerticalSeparator width='20px' style={{ flexShrink: 0 }} />
                 {renderOutputContainer()}
             </div>
             <div className='header-block' style={{ marginTop: "20px" }}>

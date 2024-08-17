@@ -1,22 +1,21 @@
-
-export const VerticalSeparator = ({ width }) => {
+export const VerticalSeparator = ({ width, style }) => {
     return (
         <div
             style={{
-                width: width
+                ...style,
+                width: width,
             }}
-        >
-        </div>
+        ></div>
     )
 }
 
-export const HorizontalSeparator = ({ height }) => {
+export const HorizontalSeparator = ({ height, style }) => {
     return (
         <div
             style={{
-                height: height
+                ...style,
+                height: height,
             }}
-        >
-        </div>
+        ></div>
     )
 }
