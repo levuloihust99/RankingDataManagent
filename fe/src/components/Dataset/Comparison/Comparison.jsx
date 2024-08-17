@@ -726,18 +726,23 @@ export const Comparisons = ({ comparisons, visible = true }) => {
                     comparisons: ex.comparisons,
                 })
             } else if (e.key === "a") {
-                datasetDispatch({
-                    type: "TEMPLATE_COMPARISONS",
-                    rowIdx: stateRef.current.activeRow,
-                    templateComparisons,
-                })
+                const currentComparisons =
+                    stateRef.current.dataset[stateRef.current.activeRow].comparisons
+                if (currentComparisons == null || currentComparisons.length === 0) {
+                    e.preventDefault()
+                    datasetDispatch({
+                        type: "TEMPLATE_COMPARISONS",
+                        rowIdx: stateRef.current.activeRow,
+                        templateComparisons,
+                    })
+                }
             }
         }
         document.addEventListener("keydown", handler)
         return () => {
             document.removeEventListener("keydown", handler)
         }
-    })
+    }, [])
 
     const handleRevealID = (e) => {
         doCopy(state.dataset[state.activeRow].sampleId)
