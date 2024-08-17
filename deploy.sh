@@ -5,8 +5,8 @@ fi;
 
 . .env
 
-# PREPARE frontend/nginx.conf FILE
-cat > frontend/nginx.conf << [END]
+# PREPARE fe/nginx.conf FILE
+cat > fe/nginx.conf << [END]
 # auto detects a good number of processes to run
 worker_processes auto;
 
