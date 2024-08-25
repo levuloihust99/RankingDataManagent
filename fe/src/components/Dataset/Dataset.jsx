@@ -43,6 +43,7 @@ export const Dataset = () => {
     const { data, pageId } = useLoaderData()
     const [totalPageLoad, setTotalPageLoad] = React.useState(true)
     const [totalPage, setTotalPage] = React.useState(0)
+    const isMounted = React.useRef(true)
 
     React.useEffect(() => {
         fetch(urlJoin(BACKEND_URL, "total_data"))
@@ -51,9 +52,14 @@ export const Dataset = () => {
             })
             .then(({ count }) => {
                 const total = Math.ceil(count / recordsPerPage)
-                setTotalPageLoad(false)
-                setTotalPage(total)
+                if (isMounted.current === true) {
+                    setTotalPageLoad(false)
+                    setTotalPage(total)
+                }
             })
+        return () => {
+            isMounted.current = false
+        }
     }, [])
 
     if (totalPageLoad === true)
