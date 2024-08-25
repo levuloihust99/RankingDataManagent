@@ -225,3 +225,44 @@ function formatNegatives(state, action) {
     })
     return nextState
 }
+
+export const workingModeReducer = (state, action) => {
+    switch (action.type) {
+        case "CHANGE_WORKING_MODE":
+            return changeWorkingMode(state, action)
+        case "SWITCH_SHOW_WORKING_MODE":
+            return { ...state, showWorkingMode: !state.showWorkingMode }
+        case "WORKING_MODE_OFF":
+            return workingModeOff(state, action)
+        default:
+            return state
+    }
+}
+
+const nextWorkingModeMapping = {
+    normal: "entity",
+    entity: "diff",
+    diff: "normal",
+}
+
+function changeWorkingMode(state, action) {
+    console.log(state)
+    const nextState = produce(state, (draft) => {
+        const currentWorkingMode = draft.workingMode
+        draft.workingMode = nextWorkingModeMapping[currentWorkingMode]
+        if (draft.showWorkingMode === false) {
+            draft.showWorkingMode = true
+        }
+    })
+    console.log(nextState)
+    return nextState
+}
+
+function workingModeOff(state, action) {
+    const nextState = produce(state, (draft) => {
+        if (draft.showWorkingMode === true) {
+            draft.showWorkingMode = false
+        }
+    })
+    return nextState
+}

@@ -96,3 +96,8 @@
     color: white;
     background-color: #00B5AD;
 }
+
+.actions-menu-item.active {
+    color: white;
+    background-color: #00B5AD;
+}

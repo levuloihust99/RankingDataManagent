@@ -1,4 +1,5 @@
 import React from "react"
+import clsx from "clsx"
 import { v4 as uuidv4 } from "uuid"
 import { Modal, Loader } from "semantic-ui-react"
 import { useLoaderData, defer, Await, useNavigate } from "react-router-dom"
@@ -9,8 +10,8 @@ import { Pagination } from "./Pagination"
 import { ErrorPage } from "../ErrorPage/ErrorPage"
 import { SampleEditor } from "./SampleEditor"
 import { Comparisons } from "./Comparison"
-import { DatasetContext } from "./context"
-import { datasetReducer } from "./reducer"
+import { DatasetContext, WorkingModeContext } from "./context"
+import { datasetReducer, workingModeReducer } from "./reducer"
 import { SaveButton } from "./SaveButton"
 import { ActionBar } from "./ActionBar"
 import "./style.css"
@@ -43,6 +44,10 @@ export const Dataset = () => {
     const { data, pageId } = useLoaderData()
     const [totalPageLoad, setTotalPageLoad] = React.useState(true)
     const [totalPage, setTotalPage] = React.useState(0)
+    const [state, dispatch] = React.useReducer(workingModeReducer, {
+        workingMode: "normal",
+        showWorkingMode: false,
+    })
     const isMounted = React.useRef(true)
 
     React.useEffect(() => {
@@ -59,6 +64,23 @@ export const Dataset = () => {
             })
         return () => {
             isMounted.current = false
+        }
+    }, [])
+
+    React.useEffect(() => {
+        const timeoutTask = { current: null }
+        const handler = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+                clearTimeout(timeoutTask.current)
+                dispatch({ type: "CHANGE_WORKING_MODE" })
+                timeoutTask.current = setTimeout(() => {
+                    if (isMounted.current === true) dispatch({ type: "WORKING_MODE_OFF" })
+                }, 1000)
+            }
+        }
+        document.addEventListener("keydown", handler)
+        return () => {
+            document.removeEventListener("keydown", handler)
         }
     }, [])
 
@@ -79,42 +101,90 @@ export const Dataset = () => {
         return <ErrorPage errorText='Page number exceeds maximum' />
     }
 
-    return (
-        <div
-            style={{
-                position: "relative",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-                flexGrow: 1,
-            }}
-        >
+    const renderWorkingMode = () => {
+        if (state.showWorkingMode === false) return null
+        return (
             <div
                 style={{
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 1,
-                    backgroundColor: "#f5f5f5",
-                    boxShadow: "0px 0px 5px 3px rgba(0, 0, 0, 0.15)",
-                    marginBottom: "20px",
+                    minWidth: "250px",
+                    backgroundColor: "white",
+                    color: "initial",
+                    position: "fixed",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    boxShadow: "0px 0px 20px rgba(34, 36, 38, 0.15)",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    fontWeight: "bold",
+                    fontSize: "1.5em",
+                    zIndex: 1000,
                 }}
             >
-                <Pagination pageId={pageId} totalPage={totalPage} />
-                <SaveButton />
-                <ActionBar />
+                <div
+                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
+                        active: state.workingMode === "normal",
+                    })}
+                >
+                    <span>Normal</span>
+                </div>
+                <div
+                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
+                        active: state.workingMode === "entity",
+                    })}
+                >
+                    <span>Entity</span>
+                </div>
+                <div
+                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
+                        active: state.workingMode === "diff",
+                    })}
+                >
+                    <span>Diff</span>
+                </div>
             </div>
-            <React.Suspense
-                fallback={
-                    <Modal dimmer='blurring' open={true} closeIcon={null}>
-                        <Loader active size='large'>
-                            Loading
-                        </Loader>
-                    </Modal>
-                }
+        )
+    }
+
+    return (
+        <WorkingModeContext.Provider value={{ state, dispatch }}>
+            <div
+                style={{
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                    flexGrow: 1,
+                }}
             >
-                <Await resolve={data}>{(dataset) => <DataProvider dataset={dataset} />}</Await>
-            </React.Suspense>
-        </div>
+                <div
+                    style={{
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 1,
+                        backgroundColor: "#f5f5f5",
+                        boxShadow: "0px 0px 5px 3px rgba(0, 0, 0, 0.15)",
+                        marginBottom: "20px",
+                    }}
+                >
+                    <Pagination pageId={pageId} totalPage={totalPage} />
+                    <SaveButton />
+                    <ActionBar />
+                </div>
+                <React.Suspense
+                    fallback={
+                        <Modal dimmer='blurring' open={true} closeIcon={null}>
+                            <Loader active size='large'>
+                                Loading
+                            </Loader>
+                        </Modal>
+                    }
+                >
+                    <Await resolve={data}>{(dataset) => <DataProvider dataset={dataset} />}</Await>
+                </React.Suspense>
+            </div>
+            {renderWorkingMode()}
+        </WorkingModeContext.Provider>
     )
 }
 
