@@ -3,22 +3,16 @@ import { clsx } from "clsx"
 import { Button } from "semantic-ui-react"
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { DatasetContext } from "../context"
+import { DatasetContext, WorkingModeContext } from "../context"
 import { AlertContext } from "../../Alert/context"
 import { updateComparisons } from "../../../api/crud"
 import { doCopy } from "../../../lib/utils"
 import "./style.css"
 
-const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, deleteFn }) => {
-    const [liveContent, setLiveContent] = React.useState(content)
-    const [prevLiveContent, setPrevLiveContent] = React.useState(content)
-    const [liveGenerator, setLiveGenerator] = React.useState(generator)
-    const [prevLiveGenerator, setPrevLiveGenerator] = React.useState(generator)
-    const [onEdit, setOnEdit] = React.useState(false)
-    const textareaRef = React.useRef()
+const CardTextAreaContent = () => {
+    const { state, dispatch } = React.useContext(CardContext)
     const [textAreaHeight, setTextAreaHeight] = React.useState("auto")
-    const [showActions, setShowActions] = React.useState(false)
-    const actionsRef = React.useRef()
+    const textareaRef = React.useRef()
 
     React.useEffect(() => {
         const task = { current: null }
@@ -48,47 +42,156 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
         setTextAreaHeight(fullScrollHeight)
     }
 
-    React.useEffect(() => {
-        setLiveContent(content)
-        setPrevLiveContent(content)
-    }, [content])
-
-    React.useEffect(() => {
-        setLiveGenerator(generator)
-        setPrevLiveGenerator(generator)
-    }, [generator])
+    const handleOnChangeContent = (e) => {
+        dispatch({
+            type: "SET_LIVE_CONTENT",
+            content: e.target.value,
+        })
+    }
 
     React.useEffect(() => {
         fitTextArea()
-    }, [liveContent])
+    }, [state.liveContent])
 
-    const handleOnChangeContent = (e) => {
-        setLiveContent(e.target.value)
+    return (
+        <div
+            style={{
+                padding: "10px",
+                width: "100%",
+            }}
+        >
+            <div
+                style={{
+                    height: `${textAreaHeight}px`,
+                }}
+            >
+                <textarea
+                    className='card-input-textarea'
+                    ref={textareaRef}
+                    readOnly={!state.onEdit}
+                    value={state.liveContent}
+                    onChange={handleOnChangeContent}
+                ></textarea>
+            </div>
+        </div>
+    )
+}
+
+const CardDiffContent = ({ diff }) => {
+    return (
+        <div
+            style={{
+                padding: "10px",
+                width: "100%",
+            }}
+        >
+            <div>
+                {diff.map((op) => {
+                    if (op.op === "equal") return <span>{op.text}</span>
+                    if (op.op === "insert")
+                        return <span className='inserted-span'>{`{${op.text}}`}</span>
+                    if (op.op === "delete")
+                        return <span className='deleted-span'>{`${op.text}`}</span>
+                    if (op.op === "replace")
+                        return (
+                            <>
+                                <span className='deleted-span'>{`${op.text}`}</span>
+                                <span className='inserted-span'>{`{${op.by}}`}</span>
+                            </>
+                        )
+                })}
+            </div>
+        </div>
+    )
+}
+
+const cardReducer = (state, action) => {
+    switch (action.type) {
+        case "SET_LIVE_GENERATOR":
+            return { ...state, liveGenerator: action.content }
+        case "SET_PREV_LIVE_GENERATOR":
+            return { ...state, prevLiveGenerator: action.content }
+        case "SET_LIVE_CONTENT":
+            return { ...state, liveContent: action.content }
+        case "SET_PREV_LIVE_CONTENT":
+            return { ...state, prevLiveContent: action.content }
+        case "ON_EDIT_TRUE":
+            return { ...state, onEdit: true }
+        case "ON_EDIT_FALSE":
+            return { ...state, onEdit: false }
+        case "CONFIRM_EDIT": {
+            return {
+                ...state,
+                onEdit: false,
+                prevLiveContent: state.liveContent,
+                prevLiveGenerator: state.liveGenerator,
+            }
+        }
+        case "CANCEL_EDIT":
+            return {
+                ...state,
+                onEdit: false,
+                liveContent: state.prevLiveContent,
+                liveGenerator: state.prevLiveGenerator,
+            }
+        default:
+            return state
     }
+}
+
+const CardContext = React.createContext(null)
+
+const Card = ({
+    idx,
+    content,
+    generator,
+    cardType,
+    cloneFn,
+    updateItemFn,
+    deleteFn,
+    negative,
+    metadata,
+}) => {
+    const [state, dispatch] = React.useReducer(cardReducer, {
+        liveContent: content,
+        prevLiveContent: content,
+        liveGenerator: generator,
+        prevLiveGenerator: generator,
+        onEdit: false,
+    })
+    const { state: workingModeState } = React.useContext(WorkingModeContext)
+    const [showActions, setShowActions] = React.useState(false)
+    const actionsRef = React.useRef()
+
+    React.useEffect(() => {
+        dispatch({ type: "SET_LIVE_GENERATOR", content: generator })
+        dispatch({ type: "SET_PREV_LIVE_GENERATOR", content: generator })
+    }, [generator])
+
+    React.useEffect(() => {
+        dispatch({ type: "SET_LIVE_CONTENT", content })
+        dispatch({ type: "SET_PREV_LIVE_CONTENT", content })
+    }, [content])
 
     const handleOnChangeGenerator = (e) => {
-        setLiveGenerator(e.target.value)
+        dispatch({ type: "SET_LIVE_GENERATOR", content: e.target.value })
     }
 
     const handleClickConfirmEdit = (e) => {
-        setOnEdit(false)
-        setPrevLiveContent(liveContent)
-        setPrevLiveGenerator(liveGenerator)
+        dispatch({ type: "CONFIRM_EDIT" })
         updateItemFn({
-            generator: liveGenerator,
-            content: liveContent,
+            generator: state.liveGenerator,
+            content: state.liveContent,
             type: cardType,
             cardIdx: idx,
         })
     }
 
     const handleClickCancelEdit = (e) => {
-        setOnEdit(false)
-        setLiveContent(prevLiveContent)
-        setLiveGenerator(prevLiveGenerator)
+        dispatch({ type: "CANCEL_EDIT" })
         updateItemFn({
-            generator: prevLiveGenerator,
-            content: prevLiveContent,
+            generator: state.prevLiveGenerator,
+            content: state.prevLiveContent,
             type: cardType,
             cardIdx: idx,
         })
@@ -121,7 +224,17 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
     }
 
     const handleCopy = (e) => {
-        doCopy(liveContent)
+        doCopy(state.liveContent)
+    }
+
+    const renderCardContent = () => {
+        if (!negative) return <CardTextAreaContent />
+        if (workingModeState.workingMode === "normal") return <CardTextAreaContent />
+        if (workingModeState.workingMode === "diff") {
+            const { diff = null } = metadata || {}
+            if (!diff) return <CardTextAreaContent />
+            return <CardDiffContent diff={diff} />
+        }
     }
 
     return (
@@ -142,7 +255,7 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                 }}
             >
                 <div className='card-toolbar'>
-                    {onEdit ? (
+                    {state.onEdit ? (
                         <>
                             <FontAwesomeIcon
                                 className='action-icon'
@@ -160,19 +273,19 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                             <FontAwesomeIcon
                                 className='action-icon'
                                 icon={icon({ name: "pen-to-square" })}
-                                onClick={(e) => setOnEdit(true)}
+                                onClick={(e) => dispatch({ type: "ON_EDIT_TRUE" })}
                             />
                             {cardType === "positive" ? (
                                 <FontAwesomeIcon
                                     className='action-icon'
                                     icon={icon({ name: "arrow-right" })}
-                                    onClick={(e) => cloneFn({ content: liveContent })}
+                                    onClick={(e) => cloneFn({ content: state.liveContent })}
                                 />
                             ) : (
                                 <FontAwesomeIcon
                                     className='action-icon'
                                     icon={icon({ name: "arrow-left" })}
-                                    onClick={(e) => cloneFn({ content: liveContent })}
+                                    onClick={(e) => cloneFn({ content: state.liveContent })}
                                 />
                             )}
                             <FontAwesomeIcon
@@ -193,8 +306,8 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                     }}
                 >
                     <input
-                        title={liveGenerator}
-                        className={clsx(!onEdit && "overflow-ellipsis")}
+                        title={state.liveGenerator}
+                        className={clsx(!state.onEdit && "overflow-ellipsis")}
                         style={{
                             width: "100%",
                             border: 0,
@@ -202,8 +315,8 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                             textAlign: "center",
                             fontFamily: "inherit",
                         }}
-                        readOnly={!onEdit}
-                        value={liveGenerator}
+                        readOnly={!state.onEdit}
+                        value={state.liveGenerator}
                         onChange={handleOnChangeGenerator}
                     />
                 </div>
@@ -247,26 +360,9 @@ const Card = ({ idx, content, generator, cardType, cloneFn, updateItemFn, delete
                     )}
                 </div>
             </div>
-            <div
-                style={{
-                    padding: "10px",
-                    width: "100%",
-                }}
-            >
-                <div
-                    style={{
-                        height: `${textAreaHeight}px`,
-                    }}
-                >
-                    <textarea
-                        className='card-input-textarea'
-                        ref={textareaRef}
-                        readOnly={!onEdit}
-                        value={liveContent}
-                        onChange={handleOnChangeContent}
-                    ></textarea>
-                </div>
-            </div>
+            <CardContext.Provider value={{ state, dispatch }}>
+                {renderCardContent()}
+            </CardContext.Provider>
         </div>
     )
 }
@@ -385,6 +481,7 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
                                 cloneFn={handleClonePosToNeg}
                                 updateItemFn={handleUpdateCompareItem}
                                 deleteFn={handleDeleteCompareItem}
+                                negative={false}
                             />
                         ))}
                         <div
@@ -416,6 +513,8 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
                                 cloneFn={handleCloneNegToPos}
                                 updateItemFn={handleUpdateCompareItem}
                                 deleteFn={handleDeleteCompareItem}
+                                negative={true}
+                                metadata={{ diff: neg.diff }}
                             />
                         ))}
                         <div

@@ -53,6 +53,8 @@ export const datasetReducer = (state, action) => {
             return { ...state, activeRow: 0 }
         case "MAX_ACTIVE_ROW":
             return { ...state, activeRow: state.dataset.length - 1 }
+        case "UPDATE_DIFF":
+            return updateDiff(state, action)
         default:
             return state
     }
@@ -234,9 +236,26 @@ export const workingModeReducer = (state, action) => {
             return { ...state, showWorkingMode: !state.showWorkingMode }
         case "WORKING_MODE_OFF":
             return workingModeOff(state, action)
+        case "CALCULATION_ON":
+            return { ...state, onCalculation: true }
+        case "CALCULATION_OFF":
+            return { ...state, onCalculation: false }
+        case "UPDATE_DIFF":
+            return updateDiff(state, action)
         default:
             return state
     }
+}
+
+function updateDiff(state, action) {
+    const nextState = produce(state, (draft) => {
+        for (let i = 0; i < action.diffs.length; i++) {
+            const { compIdx, negIdx } = action.locators[i]
+            const negative = draft.dataset[draft.activeRow].comparisons[compIdx].negatives[negIdx]
+            negative.diff = action.diffs[i]
+        }
+    })
+    return nextState
 }
 
 const nextWorkingModeMapping = {
@@ -246,7 +265,6 @@ const nextWorkingModeMapping = {
 }
 
 function changeWorkingMode(state, action) {
-    console.log(state)
     const nextState = produce(state, (draft) => {
         const currentWorkingMode = draft.workingMode
         draft.workingMode = nextWorkingModeMapping[currentWorkingMode]
@@ -254,7 +272,6 @@ function changeWorkingMode(state, action) {
             draft.showWorkingMode = true
         }
     })
-    console.log(nextState)
     return nextState
 }
 

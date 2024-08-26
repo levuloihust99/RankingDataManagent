@@ -14,6 +14,8 @@ import { DatasetContext, WorkingModeContext } from "./context"
 import { datasetReducer, workingModeReducer } from "./reducer"
 import { SaveButton } from "./SaveButton"
 import { ActionBar } from "./ActionBar"
+import { AlertContext } from "../Alert/context"
+import { diffTexts } from "../../api/diff"
 import "./style.css"
 
 async function queryData(pageId) {
@@ -47,8 +49,14 @@ export const Dataset = () => {
     const [state, dispatch] = React.useReducer(workingModeReducer, {
         workingMode: "normal",
         showWorkingMode: false,
+        onCalculation: false,
     })
+    const stateRef = React.useRef(state)
     const isMounted = React.useRef(true)
+
+    React.useEffect(() => {
+        stateRef.current = state
+    }, [state])
 
     React.useEffect(() => {
         fetch(urlJoin(BACKEND_URL, "total_data"))
@@ -190,14 +198,70 @@ export const Dataset = () => {
 
 const DataProvider = ({ dataset }) => {
     const navigate = useNavigate()
+    const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const [state, dispatch] = React.useReducer(datasetReducer, {
         dataset,
         activeRow: -1,
         view: "table",
     })
+    const { state: workingModeState, dispatch: workingModeDispatch } =
+        React.useContext(WorkingModeContext)
     const stateRef = React.useRef()
     const { pageId } = useLoaderData()
     const pageIdRef = React.useRef(pageId)
+
+    React.useEffect(() => {
+        if (workingModeState.showWorkingMode === false) {
+            if (workingModeState.workingMode === "diff") {
+                const alignedRequestData = []
+                const alignedLocators = []
+                const comparisons = state.dataset[state.activeRow].comparisons
+                for (let compIdx = 0; compIdx < comparisons.length; compIdx++) {
+                    // support postives[0] only
+                    const comp = comparisons[compIdx]
+                    const positive = comp.positives.length > 0 ? comp.positives[0] : null
+                    if (positive) {
+                        for (let negIdx = 0; negIdx < comp.negatives.length; negIdx++) {
+                            const negative = comp.negatives[negIdx]
+                            if (!negative.diff) {
+                                alignedRequestData.push({
+                                    diffTo: positive.content,
+                                    diffOn: negative.content,
+                                })
+                                alignedLocators.push({ compIdx, negIdx })
+                            }
+                        }
+                        if (alignedRequestData.length > 0) {
+                            workingModeDispatch({ type: "CALCULATION_ON" })
+                            diffTexts(alignedRequestData).then(async (resp) => {
+                                if (resp.status === 200) {
+                                    const alignedDiffs = await resp.json()
+                                    console.log(alignedDiffs)
+                                    dispatch({
+                                        type: "UPDATE_DIFF",
+                                        diffs: alignedDiffs,
+                                        locators: alignedLocators,
+                                    })
+                                } else {
+                                    const err = await resp.text()
+                                    alertDispatch({
+                                        type: "ADD_MESSAGE",
+                                        item: {
+                                            type: "failed",
+                                            message: err,
+                                        },
+                                    })
+                                }
+                                workingModeDispatch({
+                                    type: "CALCULATION_OFF",
+                                })
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }, [workingModeState.showWorkingMode])
 
     React.useEffect(() => {
         pageIdRef.current = pageId
@@ -263,6 +327,17 @@ const DataProvider = ({ dataset }) => {
         }
     }, [])
 
+    const renderLoading = () => {
+        if (workingModeState.onCalculation === false) return null
+        return (
+            <Modal dimmer='blurring' open={true} closeIcon={null}>
+                <Loader active size='large'>
+                    Loading
+                </Loader>
+            </Modal>
+        )
+    }
+
     return (
         <DatasetContext.Provider
             value={{
@@ -288,6 +363,7 @@ const DataProvider = ({ dataset }) => {
                     <Backdrop />
                 </>
             )}
+            {renderLoading()}
         </DatasetContext.Provider>
     )
 }

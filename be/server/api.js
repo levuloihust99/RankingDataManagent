@@ -1,12 +1,15 @@
-import archiver from 'archiver'
-import stream, { Readable, pipeline } from 'stream'
-import moment from 'moment'
+import archiver from "archiver"
+import stream, { Readable, pipeline } from "stream"
+import axios from "axios"
+import moment from "moment"
 import { app } from "../server/appInstance.js"
-import { RankingSampleCollection } from '../models/rankingSample.model.js'
-import { getRNG } from '../lib/seedRandom.js'
+import { RankingSampleCollection } from "../models/rankingSample.model.js"
+import { getRNG } from "../lib/seedRandom.js"
+import { AISERVICE_URL } from "../env.js"
+import { urlJoin } from "../lib/utils.js"
 
 app.get("/paginated_data", async (req, res) => {
-    console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} GET /paginated_data`)
+    console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} GET /paginated_data`)
     const query = req.query
     const pageNum = parseInt(query.pageNum)
     if (isNaN(pageNum) || pageNum <= 0) {
@@ -15,17 +18,18 @@ app.get("/paginated_data", async (req, res) => {
     }
     const recordsPerPage = parseInt(query.recordsPerPage)
     const offset = (pageNum - 1) * recordsPerPage
-    const docs = await RankingSampleCollection
-                        .find({})
-                        .sort({ createdAt: 1 })
-                        .skip(offset)
-                        .limit(recordsPerPage)
-                        .lean()
+    const docs = await RankingSampleCollection.find({})
+        .sort({ createdAt: 1 })
+        .skip(offset)
+        .limit(recordsPerPage)
+        .lean()
     res.send({ data: docs })
 })
 
 app.post("/update_comparisons", async (req, res) => {
-    console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} POST /update_comparisons`)
+    console.log(
+        `${moment().format("YYYY-MM-DD HH:mm:ss")} POST /update_comparisons`
+    )
     const { sampleId, comparisons } = req.body
     try {
         await RankingSampleCollection.findOneAndUpdate(
@@ -43,13 +47,13 @@ app.post("/update_comparisons", async (req, res) => {
 })
 
 app.get("/total_data", async (req, res) => {
-    console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} GET /total_data`)
+    console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} GET /total_data`)
     const count = await RankingSampleCollection.count({})
     res.send({ count })
 })
 
 app.post("/export_data", async (req, res) => {
-    console.log(`${moment().format('YYYY-MM-DD HH:mm:ss')} POST /export_data`)
+    console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} POST /export_data`)
     const { size, shuffle, seed } = req.body
     const inputReadableStream = new Readable({
         read() {}
@@ -114,4 +118,28 @@ app.post("/export_data", async (req, res) => {
     }
     archive.append(inputReadableStream, { name: "data.jsonl" })
     archive.finalize()
+})
+
+app.post("/diff", async (req, res) => {
+    console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} POST /diff`)
+    const endpoint = urlJoin(AISERVICE_URL, "diff")
+    let resp
+    try {
+        resp = await axios.request({
+            method: "POST",
+            url: endpoint,
+            headers: req.headers,
+            data: req.rawBody
+        })
+    } catch (err) {
+        console.log(err)
+        const { response: { data: errorObj = null } = {} } = err
+        if (errorObj) {
+            res.status(e.response.status).send(errorObj)
+        } else {
+            res.sendStatus(500)
+        }
+        return
+    }
+    res.send(resp.data)
 })
