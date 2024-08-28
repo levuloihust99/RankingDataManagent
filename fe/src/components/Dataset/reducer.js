@@ -55,6 +55,8 @@ export const datasetReducer = (state, action) => {
             return { ...state, activeRow: state.dataset.length - 1 }
         case "UPDATE_DIFF":
             return updateDiff(state, action)
+        case "UPDATE_DIFF_ITEM":
+            return updateDiffItem(state, action)
         default:
             return state
     }
@@ -228,34 +230,39 @@ function formatNegatives(state, action) {
     return nextState
 }
 
+function updateDiff(state, action) {
+    const nextState = produce(state, (draft) => {
+        for (let i = 0; i < action.diffs.length; i++) {
+            const { compIdx, negIdx } = action.locators[i]
+            const negative =
+                draft.dataset[draft.activeRow].comparisons[compIdx].negatives[
+                    negIdx
+                ]
+            negative.diff = action.diffs[i]
+        }
+    })
+    return nextState
+}
+
+function updateDiffItem(state, action) {
+    return state
+}
+
 export const workingModeReducer = (state, action) => {
     switch (action.type) {
-        case "CHANGE_WORKING_MODE":
-            return changeWorkingMode(state, action)
         case "SWITCH_SHOW_WORKING_MODE":
             return { ...state, showWorkingMode: !state.showWorkingMode }
+        case "CHANGE_WORKING_MODE":
+            return changeWorkingMode(state, action)
         case "WORKING_MODE_OFF":
             return workingModeOff(state, action)
         case "CALCULATION_ON":
             return { ...state, onCalculation: true }
         case "CALCULATION_OFF":
             return { ...state, onCalculation: false }
-        case "UPDATE_DIFF":
-            return updateDiff(state, action)
         default:
             return state
     }
-}
-
-function updateDiff(state, action) {
-    const nextState = produce(state, (draft) => {
-        for (let i = 0; i < action.diffs.length; i++) {
-            const { compIdx, negIdx } = action.locators[i]
-            const negative = draft.dataset[draft.activeRow].comparisons[compIdx].negatives[negIdx]
-            negative.diff = action.diffs[i]
-        }
-    })
-    return nextState
 }
 
 const nextWorkingModeMapping = {

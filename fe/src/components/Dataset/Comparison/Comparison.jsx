@@ -1,5 +1,6 @@
 import React from "react"
 import { clsx } from "clsx"
+import { produce } from "immer"
 import { Button } from "semantic-ui-react"
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -77,7 +78,128 @@ const CardTextAreaContent = () => {
     )
 }
 
+const EditableSpan = ({ op, idx }) => {
+    const { dispatch } = React.useContext(DatasetContext)
+    const [onEdit, setOnEdit] = React.useState(false)
+    const [liveOp, setLiveOp] = React.useState(op)
+    const eRef = React.useRef()
+    const mountIndicator = React.useRef("initial")
+
+    React.useEffect(() => {
+        setLiveOp(op)
+    }, [op])
+
+    React.useEffect(() => {
+        debugger
+        mountIndicator.current = "subsequent"
+    }, [])
+
+    React.useEffect(() => {
+        debugger
+        if (onEdit === false && mountIndicator.current !== "initial") {
+            // save dataset change
+        }
+    }, [onEdit])
+
+    const handleDoubleClick = (e) => {
+        if (onEdit === false) return
+
+        setOnEdit(true)
+        window.getSelection().selectAllChildren(e.target)
+
+        const clickCloseHandler = (e) => {
+            let element = e.target
+            do {
+                if (
+                    eRef.current &&
+                    element === eRef.current
+                ) // if click on this span, do nothing
+                    return
+                element = element.parentNode
+            } while (element)
+
+            // if click elsewhere, unfocus this span, remove the event handler
+            setOnEdit(false)
+            document.removeEventListener("click", clickCloseHandler)
+        }
+        const dbclickCloseHandler = (e) => {
+            setOnEdit(false)
+            document.removeEventListener("dbclick", dbclickCloseHandler)
+        }
+
+        setTimeout(() => {
+            document.addEventListener("click", clickCloseHandler)
+            document.addEventListener("dblclick", dbclickCloseHandler)
+        }, 0)
+    }
+
+    const handleChange = (e) => {
+        if (liveOp.op === "replace") {
+            setLiveOp({ ...liveOp, by: e.target.value })
+        } else if (liveOp.op === "insert") {
+            setLiveOp({ ...liveOp, text: e.target.value })
+        }
+    }
+
+    if (op.op === "insert")
+        return (
+            <span
+                ref={eRef}
+                className="inserted-span"
+                contentEditable={onEdit}
+                onDoubleClick={handleDoubleClick}
+                onChange={handleChange}
+            >{`${op.text}`}</span>
+        )
+    if (op.op === "replace")
+        return (
+            <>
+                <span className="deleted-span">{`${op.text}`}</span>
+                <span
+                    ref={eRef}
+                    className="inserted-span"
+                    contentEditable={onEdit}
+                    onDoubleClick={handleDoubleClick}
+                    onChange={handleChange}
+                >{`${op.by}`}</span>
+            </>
+        )
+}
+
 const CardDiffContent = ({ diff }) => {
+    const [onEdit, setOnEdit] = React.useState(false)
+    const [liveDiff, setLiveDiff] = React.useState(diff)
+
+    // React.useEffect(() => {
+    //     const handler = (e) => {
+    //         e.stopPropagation()
+
+    //     }
+
+    //     document.addEventListener("click", handler)
+    //     return () => document.removeEventListener("click", handler)
+    // }, [])
+
+    React.useEffect(() => {
+        setLiveDiff(diff)
+    }, [diff])
+
+    const handleDoubleClick = (e) => {
+        setOnEdit(true)
+        window.getSelection().selectAllChildren(e.target);
+    }
+
+    const handleChange = (e, diffItemIdx) => {
+        const nextLiveDiff = produce(liveDiff, (draft) => {
+            if (draft[diffItemIdx].op === "insert") {
+                draft[diffItemIdx].text = e.target.value
+            } else {
+                draft[diffItemIdx].by = e.target.value
+            }
+        })
+        setLiveDiff(nextLiveDiff)
+    }
+
     return (
         <div
             style={{
@@ -86,17 +208,34 @@ const CardDiffContent = ({ diff }) => {
             }}
         >
             <div>
-                {diff.map((op) => {
+                {diff.map((op, diffItemIdx) => {
                     if (op.op === "equal") return <span>{op.text}</span>
                     if (op.op === "insert")
-                        return <span className='inserted-span'>{`{${op.text}}`}</span>
+                        return (
+                            <>
+                                <span>{`{`}</span>
+                                <span
+                                    className="inserted-span"
+                                    contentEditable={onEdit}
+                                    onDoubleClick={handleDoubleClick}
+                                    onChange={(e) => handleChange(e, diffItemIdx)}
+                                >{`${op.text}`}</span>
+                                <span>{`}`}</span>
+                            </>
+                        )
                     if (op.op === "delete")
-                        return <span className='deleted-span'>{`${op.text}`}</span>
+                        return (
+                            <span className="deleted-span">{`${op.text}`}</span>
+                        )
                     if (op.op === "replace")
                         return (
                             <>
-                                <span className='deleted-span'>{`${op.text}`}</span>
-                                <span className='inserted-span'>{`{${op.by}}`}</span>
+                                <span className="deleted-span">{`${op.text}`}</span>
+                                <span
+                                    className="inserted-span"
+                                    contentEditable={onEdit}
+                                    onDoubleClick={handleDoubleClick}
+                                >{`${op.by}`}</span>
                             </>
                         )
                 })}
@@ -228,11 +367,15 @@ const Card = ({
     }
 
     const renderCardContent = () => {
-        if (!negative) return <CardTextAreaContent />
         if (workingModeState.workingMode === "normal") return <CardTextAreaContent />
         if (workingModeState.workingMode === "diff") {
             const { diff = null } = metadata || {}
-            if (!diff) return <CardTextAreaContent />
+            if (!diff)
+                return (
+                    <CardDiffContent
+                        diff={[{ op: "equal", text: state.liveContent }]}
+                    />
+                )
             return <CardDiffContent diff={diff} />
         }
     }
@@ -360,7 +503,9 @@ const Card = ({
                     )}
                 </div>
             </div>
-            <CardContext.Provider value={{ state, dispatch }}>
+            <CardContext.Provider
+                value={{ state: { ...state, idx }, dispatch }}
+            >
                 {renderCardContent()}
             </CardContext.Provider>
         </div>

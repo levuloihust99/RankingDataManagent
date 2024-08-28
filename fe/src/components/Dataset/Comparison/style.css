@@ -107,6 +107,18 @@
     font-weight: bold;
 }
 
+.inserted-span::before {
+    content: "{";
+}
+
+.inserted-span::after {
+    content: "}";
+}
+
+.inserted-span:focus {
+    outline: none;
+}
+
 .deleted-span {
     color: red;
     font-weight: bold;

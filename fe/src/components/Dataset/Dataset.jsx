@@ -46,17 +46,7 @@ export const Dataset = () => {
     const { data, pageId } = useLoaderData()
     const [totalPageLoad, setTotalPageLoad] = React.useState(true)
     const [totalPage, setTotalPage] = React.useState(0)
-    const [state, dispatch] = React.useReducer(workingModeReducer, {
-        workingMode: "normal",
-        showWorkingMode: false,
-        onCalculation: false,
-    })
-    const stateRef = React.useRef(state)
     const isMounted = React.useRef(true)
-
-    React.useEffect(() => {
-        stateRef.current = state
-    }, [state])
 
     React.useEffect(() => {
         fetch(urlJoin(BACKEND_URL, "total_data"))
@@ -72,23 +62,6 @@ export const Dataset = () => {
             })
         return () => {
             isMounted.current = false
-        }
-    }, [])
-
-    React.useEffect(() => {
-        const timeoutTask = { current: null }
-        const handler = (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-                clearTimeout(timeoutTask.current)
-                dispatch({ type: "CHANGE_WORKING_MODE" })
-                timeoutTask.current = setTimeout(() => {
-                    if (isMounted.current === true) dispatch({ type: "WORKING_MODE_OFF" })
-                }, 1000)
-            }
-        }
-        document.addEventListener("keydown", handler)
-        return () => {
-            document.removeEventListener("keydown", handler)
         }
     }, [])
 
@@ -109,53 +82,8 @@ export const Dataset = () => {
         return <ErrorPage errorText='Page number exceeds maximum' />
     }
 
-    const renderWorkingMode = () => {
-        if (state.showWorkingMode === false) return null
-        return (
-            <div
-                style={{
-                    minWidth: "250px",
-                    backgroundColor: "white",
-                    color: "initial",
-                    position: "fixed",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    boxShadow: "0px 0px 20px rgba(34, 36, 38, 0.15)",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    fontWeight: "bold",
-                    fontSize: "1.5em",
-                    zIndex: 1000,
-                }}
-            >
-                <div
-                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
-                        active: state.workingMode === "normal",
-                    })}
-                >
-                    <span>Normal</span>
-                </div>
-                <div
-                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
-                        active: state.workingMode === "entity",
-                    })}
-                >
-                    <span>Entity</span>
-                </div>
-                <div
-                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
-                        active: state.workingMode === "diff",
-                    })}
-                >
-                    <span>Diff</span>
-                </div>
-            </div>
-        )
-    }
-
     return (
-        <WorkingModeContext.Provider value={{ state, dispatch }}>
+        <>
             <div
                 style={{
                     position: "relative",
@@ -191,8 +119,7 @@ export const Dataset = () => {
                     <Await resolve={data}>{(dataset) => <DataProvider dataset={dataset} />}</Await>
                 </React.Suspense>
             </div>
-            {renderWorkingMode()}
-        </WorkingModeContext.Provider>
+        </>
     )
 }
 
@@ -204,14 +131,24 @@ const DataProvider = ({ dataset }) => {
         activeRow: -1,
         view: "table",
     })
-    const { state: workingModeState, dispatch: workingModeDispatch } =
-        React.useContext(WorkingModeContext)
+    const [workingModeState, workingModeDispatch] = React.useReducer(workingModeReducer, {
+        workingMode: "normal",
+        showWorkingMode: false,
+        onCalculation: false,
+    })
     const stateRef = React.useRef()
     const { pageId } = useLoaderData()
     const pageIdRef = React.useRef(pageId)
+    const isMounted = React.useRef(true)
 
     React.useEffect(() => {
-        if (workingModeState.showWorkingMode === false) {
+        return () => {
+            isMounted.current = false
+        }
+    }, [])
+
+    React.useEffect(() => {
+        if (workingModeState.showWorkingMode === false && state.view !== "table") {
             if (workingModeState.workingMode === "diff") {
                 const alignedRequestData = []
                 const alignedLocators = []
@@ -236,7 +173,6 @@ const DataProvider = ({ dataset }) => {
                             diffTexts(alignedRequestData).then(async (resp) => {
                                 if (resp.status === 200) {
                                     const alignedDiffs = await resp.json()
-                                    console.log(alignedDiffs)
                                     dispatch({
                                         type: "UPDATE_DIFF",
                                         diffs: alignedDiffs,
@@ -281,7 +217,11 @@ const DataProvider = ({ dataset }) => {
     React.useEffect(() => {
         const handler = (e) => {
             if (stateRef.current.view !== "table") {
-                if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+                if (
+                    e.target.tagName === "INPUT" ||
+                    e.target.tagName === "TEXTAREA" ||
+                    e.target.className === "inserted-span"
+                ) {
                     return
                 }
                 if (e.keyCode == "39") {
@@ -327,6 +267,24 @@ const DataProvider = ({ dataset }) => {
         }
     }, [])
 
+    React.useEffect(() => {
+        const timeoutTask = { current: null }
+        const handler = (e) => {
+            e.preventDefault()
+            if (stateRef.current.view === "compare" && (e.ctrlKey || e.metaKey) && e.key === "k") {
+                clearTimeout(timeoutTask.current)
+                workingModeDispatch({ type: "CHANGE_WORKING_MODE" })
+                timeoutTask.current = setTimeout(() => {
+                    if (isMounted.current === true) workingModeDispatch({ type: "WORKING_MODE_OFF" })
+                }, 1000)
+            }
+        }
+        document.addEventListener("keydown", handler)
+        return () => {
+            document.removeEventListener("keydown", handler)
+        }
+    }, [])
+
     const renderLoading = () => {
         if (workingModeState.onCalculation === false) return null
         return (
@@ -338,33 +296,85 @@ const DataProvider = ({ dataset }) => {
         )
     }
 
-    return (
-        <DatasetContext.Provider
-            value={{
-                state,
-                dispatch,
-            }}
-        >
+    const renderWorkingMode = () => {
+        if (workingModeState.showWorkingMode === false) return null
+        return (
             <div
-                className='content-box'
                 style={{
-                    display: state.activeRow > -1 ? "none" : "block",
+                    minWidth: "250px",
+                    backgroundColor: "white",
+                    color: "initial",
+                    position: "fixed",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    boxShadow: "0px 0px 20px rgba(34, 36, 38, 0.15)",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    fontWeight: "bold",
+                    fontSize: "1.5em",
+                    zIndex: 5,
                 }}
             >
-                <DataTable />
+                <div
+                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
+                        active: workingModeState.workingMode === "normal",
+                    })}
+                >
+                    <span>Normal</span>
+                </div>
+                <div
+                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
+                        active: workingModeState.workingMode === "entity",
+                    })}
+                >
+                    <span>Entity</span>
+                </div>
+                <div
+                    className={clsx("d-flex-center py-20 actions-menu-item teal", {
+                        active: workingModeState.workingMode === "diff",
+                    })}
+                >
+                    <span>Diff</span>
+                </div>
             </div>
-            {state.activeRow > -1 && (
-                <>
-                    <SampleEditor visible={state.view === "rank"} />
-                    <Comparisons
-                        visible={state.view === "compare"}
-                        comparisons={state.dataset[state.activeRow].comparisons || []}
-                    />
-                    <Backdrop />
-                </>
-            )}
-            {renderLoading()}
-        </DatasetContext.Provider>
+        )
+    }
+
+    return (
+        <WorkingModeContext.Provider
+            value={{ state: workingModeState, dispatch: workingModeDispatch }}
+        >
+            <DatasetContext.Provider
+                value={{
+                    state,
+                    dispatch,
+                }}
+            >
+                <div
+                    className="content-box"
+                    style={{
+                        display: state.activeRow > -1 ? "none" : "block",
+                    }}
+                >
+                    <DataTable />
+                </div>
+                {state.activeRow > -1 && (
+                    <>
+                        <SampleEditor visible={state.view === "rank"} />
+                        <Comparisons
+                            visible={state.view === "compare"}
+                            comparisons={
+                                state.dataset[state.activeRow].comparisons || []
+                            }
+                        />
+                        <Backdrop />
+                    </>
+                )}
+                {renderLoading()}
+                {renderWorkingMode()}
+            </DatasetContext.Provider>
+        </WorkingModeContext.Provider>
     )
 }
 
