@@ -1,3 +1,6 @@
 .venv/
 .dockerignore
 .env
+tests/
+.vscode/
+__pycache__/
