@@ -78,9 +78,11 @@ def diff_text(s1: str, s2: str) -> list[dict]:
                     if first_merged_ops[-1]["op"] == "insert":
                         first_merged_ops[-1]["by"] = first_merged_ops["text"] + op["by"]
                         first_merged_ops[-1]["text"] = op["text"]
-                    else: # delete
+                    elif first_merged_ops[-1]["op"] == "delete":
                         first_merged_ops[-1]["text"] = first_merged_ops[-1]["text"] + op["text"]
                         first_merged_ops[-1]["by"] = op["by"]
+                    else:
+                        first_merged_ops.append({**op})
                 else:
                     first_merged_ops.append({**op})
             elif op["op"] == "insert":
@@ -126,6 +128,5 @@ def diff_text(s1: str, s2: str) -> list[dict]:
                     second_merged_ops[-1]["by"] += op["by"]
             else:
                 second_merged_ops.append({**op})
-
 
     return second_merged_ops
