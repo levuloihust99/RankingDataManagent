@@ -148,7 +148,8 @@ const DataProvider = ({ dataset }) => {
     }, [])
 
     React.useEffect(() => {
-        if (workingModeState.showWorkingMode === false && state.view !== "table") {
+        // trigger diff calculation on switching to diff mode
+        if (workingModeState.showWorkingMode === false && state.view === "compare") {
             if (workingModeState.workingMode === "diff") {
                 const alignedRequestData = []
                 const alignedLocators = []

@@ -8,6 +8,7 @@ import { DatasetContext, WorkingModeContext } from "../context"
 import { AlertContext } from "../../Alert/context"
 import { updateComparisons } from "../../../api/crud"
 import { doCopy } from "../../../lib/utils"
+import { diffTexts } from "../../../api/diff"
 import "./style.css"
 
 const CardTextAreaContent = () => {
@@ -893,6 +894,7 @@ const templateComparisons = [
 export const Comparisons = ({ comparisons, visible = true }) => {
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const { state: workingModeState, dispatch: workingModeDispatch } = React.useContext(WorkingModeContext)
     const stateRef = React.useRef(state)
     const [showActionsMenu, setShowActionsMenu] = React.useState(false)
     const actionsMenuRef = React.useRef()
@@ -966,6 +968,56 @@ export const Comparisons = ({ comparisons, visible = true }) => {
             document.removeEventListener("keydown", handler)
         }
     }, [])
+
+    React.useEffect(() => {
+        // trigger diff calculation on switching to another sample
+        if (workingModeState.workingMode === "diff") {
+            const alignedRequestData = []
+            const alignedLocators = []
+            for (let compIdx = 0; compIdx < comparisons.length; compIdx++) {
+                // support postives[0] only
+                const comp = comparisons[compIdx]
+                const positive = comp.positives.length > 0 ? comp.positives[0] : null
+                if (positive) {
+                    for (let negIdx = 0; negIdx < comp.negatives.length; negIdx++) {
+                        const negative = comp.negatives[negIdx]
+                        if (!negative.diff) {
+                            alignedRequestData.push({
+                                diffTo: positive.content,
+                                diffOn: negative.content,
+                            })
+                            alignedLocators.push({ compIdx, negIdx })
+                        }
+                    }
+                    if (alignedRequestData.length > 0) {
+                        workingModeDispatch({ type: "CALCULATION_ON" })
+                        diffTexts(alignedRequestData).then(async (resp) => {
+                            if (resp.status === 200) {
+                                const alignedDiffs = await resp.json()
+                                datasetDispatch({
+                                    type: "UPDATE_DIFF",
+                                    diffs: alignedDiffs,
+                                    locators: alignedLocators,
+                                })
+                            } else {
+                                const err = await resp.text()
+                                alertDispatch({
+                                    type: "ADD_MESSAGE",
+                                    item: {
+                                        type: "failed",
+                                        message: err,
+                                    },
+                                })
+                            }
+                            workingModeDispatch({
+                                type: "CALCULATION_OFF",
+                            })
+                        })
+                    }
+                }
+            }
+        }
+    }, [state.activeRow])
 
     const handleRevealID = (e) => {
         doCopy(state.dataset[state.activeRow].sampleId)
