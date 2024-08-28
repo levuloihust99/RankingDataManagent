@@ -270,8 +270,8 @@ const DataProvider = ({ dataset }) => {
     React.useEffect(() => {
         const timeoutTask = { current: null }
         const handler = (e) => {
-            e.preventDefault()
             if (stateRef.current.view === "compare" && (e.ctrlKey || e.metaKey) && e.key === "k") {
+                e.preventDefault()
                 clearTimeout(timeoutTask.current)
                 workingModeDispatch({ type: "CHANGE_WORKING_MODE" })
                 timeoutTask.current = setTimeout(() => {
