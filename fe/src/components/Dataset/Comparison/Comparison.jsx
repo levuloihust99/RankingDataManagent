@@ -79,30 +79,39 @@ const CardTextAreaContent = () => {
 }
 
 const EditableSpan = ({ op, idx }) => {
-    const { dispatch } = React.useContext(DatasetContext)
     const [onEdit, setOnEdit] = React.useState(false)
     const [liveOp, setLiveOp] = React.useState(op)
     const eRef = React.useRef()
     const mountIndicator = React.useRef("initial")
+    const { dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const {
+        state: { cardIdx, compIdx },
+    } = React.useContext(CardContext)
 
     React.useEffect(() => {
         setLiveOp(op)
     }, [op])
 
     React.useEffect(() => {
-        debugger
-        mountIndicator.current = "subsequent"
-    }, [])
-
-    React.useEffect(() => {
-        debugger
         if (onEdit === false && mountIndicator.current !== "initial") {
             // save dataset change
+            datasetDispatch({
+                type: "UPDATE_DIFF_OP",
+                cardIdx,
+                compIdx,
+                opIdx: idx,
+                op: liveOp,
+            })
         }
     }, [onEdit])
 
+    React.useEffect(() => {
+        mountIndicator.current = "subsequent"
+    }, [])
+
     const handleDoubleClick = (e) => {
-        if (onEdit === false) return
+        debugger
+        if (onEdit === true) return
 
         setOnEdit(true)
         window.getSelection().selectAllChildren(e.target)
@@ -110,10 +119,8 @@ const EditableSpan = ({ op, idx }) => {
         const clickCloseHandler = (e) => {
             let element = e.target
             do {
-                if (
-                    eRef.current &&
-                    element === eRef.current
-                ) // if click on this span, do nothing
+                if (eRef.current && element === eRef.current)
+                    // if click on this span, do nothing
                     return
                 element = element.parentNode
             } while (element)
@@ -141,65 +148,42 @@ const EditableSpan = ({ op, idx }) => {
         }
     }
 
-    if (op.op === "insert")
+    const renderInsertion = () => {
+        if (onEdit)
+            return (
+                <input
+                    ref={eRef}
+                    className="inserted-span"
+                    style={{
+                        outline: "none",
+                        fontFamily: "inherit",
+                    }}
+                    value={liveOp.op === "replace" ? liveOp.by : liveOp.text}
+                    onChange={handleChange}
+                    onDoubleClick={handleDoubleClick}
+                />
+            )
         return (
             <span
                 ref={eRef}
                 className="inserted-span"
-                contentEditable={onEdit}
                 onDoubleClick={handleDoubleClick}
                 onChange={handleChange}
-            >{`${op.text}`}</span>
+            >{`${liveOp.op === "replace" ? liveOp.by : liveOp.text}`}</span>
         )
-    if (op.op === "replace")
+    }
+
+    if (liveOp.op === "insert") return renderInsertion()
+    if (liveOp.op === "replace")
         return (
             <>
-                <span className="deleted-span">{`${op.text}`}</span>
-                <span
-                    ref={eRef}
-                    className="inserted-span"
-                    contentEditable={onEdit}
-                    onDoubleClick={handleDoubleClick}
-                    onChange={handleChange}
-                >{`${op.by}`}</span>
+                <span className="deleted-span">{`${liveOp.text}`}</span>
+                {renderInsertion()}
             </>
         )
 }
 
 const CardDiffContent = ({ diff }) => {
-    const [onEdit, setOnEdit] = React.useState(false)
-    const [liveDiff, setLiveDiff] = React.useState(diff)
-
-    // React.useEffect(() => {
-    //     const handler = (e) => {
-    //         e.stopPropagation()
-
-    //     }
-
-    //     document.addEventListener("click", handler)
-    //     return () => document.removeEventListener("click", handler)
-    // }, [])
-
-    React.useEffect(() => {
-        setLiveDiff(diff)
-    }, [diff])
-
-    const handleDoubleClick = (e) => {
-        setOnEdit(true)
-        window.getSelection().selectAllChildren(e.target);
-    }
-
-    const handleChange = (e, diffItemIdx) => {
-        const nextLiveDiff = produce(liveDiff, (draft) => {
-            if (draft[diffItemIdx].op === "insert") {
-                draft[diffItemIdx].text = e.target.value
-            } else {
-                draft[diffItemIdx].by = e.target.value
-            }
-        })
-        setLiveDiff(nextLiveDiff)
-    }
-
     return (
         <div
             style={{
@@ -208,36 +192,16 @@ const CardDiffContent = ({ diff }) => {
             }}
         >
             <div>
-                {diff.map((op, diffItemIdx) => {
-                    if (op.op === "equal") return <span>{op.text}</span>
+                {diff.map((op, idx) => {
+                    if (op.op === "equal") return <span key={idx}>{op.text}</span>
                     if (op.op === "insert")
-                        return (
-                            <>
-                                <span>{`{`}</span>
-                                <span
-                                    className="inserted-span"
-                                    contentEditable={onEdit}
-                                    onDoubleClick={handleDoubleClick}
-                                    onChange={(e) => handleChange(e, diffItemIdx)}
-                                >{`${op.text}`}</span>
-                                <span>{`}`}</span>
-                            </>
-                        )
+                        return <EditableSpan key={idx} op={op} idx={idx} />
                     if (op.op === "delete")
                         return (
-                            <span className="deleted-span">{`${op.text}`}</span>
+                            <span key={idx} className="deleted-span">{`${op.text}`}</span>
                         )
                     if (op.op === "replace")
-                        return (
-                            <>
-                                <span className="deleted-span">{`${op.text}`}</span>
-                                <span
-                                    className="inserted-span"
-                                    contentEditable={onEdit}
-                                    onDoubleClick={handleDoubleClick}
-                                >{`${op.by}`}</span>
-                            </>
-                        )
+                        return <EditableSpan key={idx} op={op} idx={idx} />
                 })}
             </div>
         </div>
@@ -282,6 +246,7 @@ const CardContext = React.createContext(null)
 
 const Card = ({
     idx,
+    compIdx,
     content,
     generator,
     cardType,
@@ -504,7 +469,7 @@ const Card = ({
                 </div>
             </div>
             <CardContext.Provider
-                value={{ state: { ...state, idx }, dispatch }}
+                value={{ state: { ...state, cardIdx: idx, compIdx }, dispatch }}
             >
                 {renderCardContent()}
             </CardContext.Provider>
@@ -616,10 +581,11 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
             <tr>
                 <td style={{ padding: "0 10px 0 20px", verticalAlign: "top" }}>
                     <div>
-                        {positives.map((pos, idx) => (
+                        {positives.map((pos, cardIdx) => (
                             <Card
-                                key={idx}
-                                idx={idx}
+                                key={cardIdx}
+                                idx={cardIdx}
+                                compIdx={idx}
                                 content={pos.content}
                                 generator={pos.metadata.generator}
                                 cardType='positive'
@@ -648,10 +614,11 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
                 </td>
                 <td style={{ padding: "0 20px 0 10px", verticalAlign: "top" }}>
                     <div>
-                        {negatives.map((neg, idx) => (
+                        {negatives.map((neg, cardIdx) => (
                             <Card
-                                key={idx}
-                                idx={idx}
+                                key={cardIdx}
+                                idx={cardIdx}
+                                compIdx={idx}
                                 content={neg.content}
                                 generator={neg.metadata.generator}
                                 cardType='negative'

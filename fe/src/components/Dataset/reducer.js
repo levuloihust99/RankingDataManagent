@@ -55,8 +55,8 @@ export const datasetReducer = (state, action) => {
             return { ...state, activeRow: state.dataset.length - 1 }
         case "UPDATE_DIFF":
             return updateDiff(state, action)
-        case "UPDATE_DIFF_ITEM":
-            return updateDiffItem(state, action)
+        case "UPDATE_DIFF_OP":
+            return updateDiffOp(state, action)
         default:
             return state
     }
@@ -244,8 +244,14 @@ function updateDiff(state, action) {
     return nextState
 }
 
-function updateDiffItem(state, action) {
-    return state
+function updateDiffOp(state, action) {
+    const nextState = produce(state, (draft) => {
+        const diff =
+            draft.dataset[draft.activeRow].comparisons[action.compIdx]
+                .negatives[action.cardIdx].diff
+        diff[action.opIdx] = action.op
+    })
+    return nextState
 }
 
 export const workingModeReducer = (state, action) => {
