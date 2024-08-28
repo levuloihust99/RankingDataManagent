@@ -110,7 +110,6 @@ const EditableSpan = ({ op, idx }) => {
     }, [])
 
     const handleDoubleClick = (e) => {
-        debugger
         if (onEdit === true) return
 
         setOnEdit(true)
@@ -128,10 +127,21 @@ const EditableSpan = ({ op, idx }) => {
             // if click elsewhere, unfocus this span, remove the event handler
             setOnEdit(false)
             document.removeEventListener("click", clickCloseHandler)
+            document.removeEventListener("dblclick", dbclickCloseHandler)
         }
         const dbclickCloseHandler = (e) => {
+            let element = e.target
+            do {
+                if (eRef.current && element === eRef.current)
+                    // if dbclick on this span, do nothing
+                    return
+                element = element.parentNode
+            } while (element)
+
+            // if dbclick elsewhere, unfocus this span, remove the event handler
             setOnEdit(false)
-            document.removeEventListener("dbclick", dbclickCloseHandler)
+            document.removeEventListener("click", clickCloseHandler)
+            document.removeEventListener("dblclick", dbclickCloseHandler)
         }
 
         setTimeout(() => {
