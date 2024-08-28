@@ -171,12 +171,15 @@ function cloneNegToPos(state, action) {
 }
 
 function updateCompareItem(state, action) {
-    const { itemType, generator, content, cardIdx, comparisonIdx, rowIdx } = action
+    const { itemType, generator, content, cardIdx, comparisonIdx, rowIdx, invalidateDiff } = action
     const nextState = produce(state, (draft) => {
         const comparison = draft.dataset[rowIdx].comparisons[comparisonIdx]
         const items = itemType === "positive" ? comparison.positives : comparison.negatives
         items[cardIdx].content = content
         items[cardIdx].metadata.generator = generator
+        if (invalidateDiff) {
+            items[cardIdx].diff = null
+        }
     })
     return nextState
 }
@@ -246,10 +249,20 @@ function updateDiff(state, action) {
 
 function updateDiffOp(state, action) {
     const nextState = produce(state, (draft) => {
-        const diff =
-            draft.dataset[draft.activeRow].comparisons[action.compIdx]
-                .negatives[action.cardIdx].diff
-        diff[action.opIdx] = action.op
+        const negative =
+            draft.dataset[draft.activeRow].comparisons[action.compIdx].negatives[action.cardIdx]
+        const diff = negative.diff
+        debugger
+        if (JSON.stringify(diff[action.opIdx]) !== JSON.stringify(action.op)) {
+            debugger
+            diff[action.opIdx] = action.op
+            const tokens = []
+            diff.forEach((op) => {
+                if (op.op === "insert" || op.op === "equal") tokens.push(op.text)
+                if (op.op === "replace") tokens.push(op.by)
+            })
+            negative.content = tokens.join("")
+        }
     })
     return nextState
 }

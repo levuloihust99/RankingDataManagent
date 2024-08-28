@@ -298,6 +298,7 @@ const Card = ({
             content: state.liveContent,
             type: cardType,
             cardIdx: idx,
+            invalidateDiff: state.prevLiveContent !== state.liveContent,
         })
     }
 
@@ -528,7 +529,7 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
         })
     }
 
-    const handleUpdateCompareItem = ({ generator, content, type, cardIdx }) => {
+    const handleUpdateCompareItem = ({ generator, content, type, cardIdx, invalidateDiff }) => {
         datasetDispatch({
             type: "UPDATE_COMPARE_ITEM",
             itemType: type,
@@ -537,6 +538,7 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
             cardIdx,
             comparisonIdx: idx,
             rowIdx: state.activeRow,
+            invalidateDiff,
         })
     }
 
