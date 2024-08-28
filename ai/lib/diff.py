@@ -66,10 +66,41 @@ def diff_text(s1: str, s2: str) -> list[dict]:
 
     ops = ops[::-1]
 
-    # modify ops
+    # first merge: merge "replace" with "insert" or "delete"
+    first_merged_ops = []
+    for op in ops:
+        if not first_merged_ops:
+            first_merged_ops.append({**op})
+        else:
+            if op["op"] == "replace":
+                if first_merged_ops[-1]["op"] != "equal":
+                    first_merged_ops[-1]["op"] = "replace"
+                    if first_merged_ops[-1]["op"] == "insert":
+                        first_merged_ops[-1]["by"] = first_merged_ops["text"] + op["by"]
+                        first_merged_ops[-1]["text"] = op["text"]
+                    else: # delete
+                        first_merged_ops[-1]["text"] = first_merged_ops[-1]["text"] + op["text"]
+                        first_merged_ops[-1]["by"] = op["by"]
+                else:
+                    first_merged_ops.append({**op})
+            elif op["op"] == "insert":
+                if first_merged_ops[-1]["op"] == "replace":
+                    first_merged_ops[-1]["by"] += op["text"]
+                else:
+                    first_merged_ops.append({**op})
+            elif op["op"] == "delete":
+                if first_merged_ops[-1]["op"] == "replace":
+                    first_merged_ops[-1]["text"] += op["text"]
+                else:
+                    first_merged_ops.append({**op})
+            else:
+                first_merged_ops.append({**op})
+
+    # modify ops: "equal" op with whitespace between two ops of the same type
+    # is converted to that type
     modified_ops = []
     non_eq_op = None
-    for idx, op in enumerate(ops):
+    for idx, op in enumerate(first_merged_ops):
         modified_ops.append({**op})
         if op["op"] != "equal":
             if non_eq_op and non_eq_op["op"] == op["op"]:
@@ -83,47 +114,18 @@ def diff_text(s1: str, s2: str) -> list[dict]:
             if not is_whitespace:
                 non_eq_op = None
 
-    # first merge
-    merged_ops = []
-    for op in modified_ops:
-        if not merged_ops:
-            merged_ops.append({**op})
-        else:
-            if merged_ops[-1]["op"] == op["op"]:
-                merged_ops[-1]["text"] += op["text"]
-                if op["op"] == "replace":
-                    merged_ops[-1]["by"] += op["by"]
-            else:
-                merged_ops.append({**op})
-
-    # second merge
+    # second merge: merge consecutive words
     second_merged_ops = []
-    for op in merged_ops:
+    for op in modified_ops:
         if not second_merged_ops:
             second_merged_ops.append({**op})
         else:
-            if op["op"] == "replace":
-                if second_merged_ops[-1]["op"] != "equal":
-                    second_merged_ops[-1]["op"] = "replace"
-                    if second_merged_ops[-1]["op"] == "insert":
-                        second_merged_ops[-1]["by"] = second_merged_ops["text"] + op["by"]
-                        second_merged_ops[-1]["text"] = op["text"]
-                    else: # delete
-                        second_merged_ops[-1]["text"] = second_merged_ops["text"] + op["text"]
-                        second_merged_ops[-1]["by"] = op["by"]
-                else:
-                    second_merged_ops.append({**op})
-            elif op["op"] == "insert":
-                if second_merged_ops[-1]["op"] == "replace":
-                    second_merged_ops[-1]["by"] += op["text"]
-                else:
-                    second_merged_ops.append({**op})
-            elif op["op"] == "delete":
-                if second_merged_ops[-1]["op"] == "replace":
-                    second_merged_ops[-1]["text"] += op["text"]
-                else:
-                    second_merged_ops.append({**op})
+            if second_merged_ops[-1]["op"] == op["op"]:
+                second_merged_ops[-1]["text"] += op["text"]
+                if op["op"] == "replace":
+                    second_merged_ops[-1]["by"] += op["by"]
             else:
                 second_merged_ops.append({**op})
+
 
     return second_merged_ops
