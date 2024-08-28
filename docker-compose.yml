@@ -34,6 +34,14 @@ services:
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - MONGO_SCHEMA=${MONGO_SCHEMA}
       - MONGO_COLLECTION=${MONGO_COLLECTION}
+      - AISERVICE_HOST=${AISERVICE_HOST}
+      - AISERVICE_PORT=${AISERVICE_PORT}
+
+  aiservice:
+    build:
+      context: ./ai
+    environment:
+      - PORT=${AISERVICE_PORT}
 
 volumes:
   db-volume:

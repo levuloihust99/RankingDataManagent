@@ -12,6 +12,8 @@ from lib.utils.logging import do_setup_logging
 from apps.constants import MAIN_APP
 from apps.main.routes import bp
 
+from decouple import config
+
 do_setup_logging()
 logger = logging.getLogger(__name__)
 
@@ -23,7 +25,9 @@ register_middleware(app, service="MAIN")
 app.blueprint(bp)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--port", "-p", type=int, default=5555)
+parser.add_argument(
+    "--port", "-p", type=int, default=config("PORT", cast=int, default=5555)
+)
 args = parser.parse_args()
 
 
