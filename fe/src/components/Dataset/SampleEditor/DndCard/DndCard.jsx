@@ -213,6 +213,7 @@ const CardItem = ({ metadata, score, content, idx }) => {
                 style={{
                     padding: "10px",
                     width: "100%",
+                    userSelect: "none",
                 }}
             >
                 {content}
