@@ -234,6 +234,8 @@ function formatNegatives(state, action) {
 }
 
 function updateDiff(state, action) {
+    if (state.dataset[state.activeRow].sampleId !== action.sampleId)
+        return state
     const nextState = produce(state, (draft) => {
         for (let i = 0; i < action.diffs.length; i++) {
             const { compIdx, negIdx } = action.locators[i]

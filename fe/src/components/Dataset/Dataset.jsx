@@ -16,6 +16,7 @@ import { SaveButton } from "./SaveButton"
 import { ActionBar } from "./ActionBar"
 import { AlertContext } from "../Alert/context"
 import { diffTexts } from "../../api/diff"
+import { ON_REQUEST_LOCK } from "../../lib/lock"
 import "./style.css"
 
 async function queryData(pageId) {
@@ -85,7 +86,14 @@ export const Dataset = () => {
         if (initState?.view) {
             update.view = initState.view
         }
-        setInitState({ view: update.view, activeRow: update.activeRow })
+        if (initState?.workingMode) {
+            update.workingMode = initState.workingMode
+        }
+        setInitState({
+            view: update.view,
+            activeRow: update.activeRow,
+            workingMode: update.workingMode,
+        })
     }, [pageId])
 
     React.useEffect(() => {
@@ -118,7 +126,8 @@ export const Dataset = () => {
             })
     }, [pageId])
 
-    if (state.onLoadingMeta === true)
+    if (state.onLoadingMeta === true) {
+        // return null
         return (
             <Modal dimmer='blurring' open={true} closeIcon={null}>
                 <Loader active size='large'>
@@ -126,6 +135,7 @@ export const Dataset = () => {
                 </Loader>
             </Modal>
         )
+    }
     if (state.loadMetaError != null) return <ErrorPage errorText={state.loadMetaError} />
 
     if (isNaN(pageId)) {
@@ -138,6 +148,7 @@ export const Dataset = () => {
 
     const renderContent = () => {
         if (state.onLoadingData === true) {
+            // return null
             return (
                 <Modal dimmer='blurring' open={true} closeIcon={null}>
                     <Loader active size='large'>
@@ -192,14 +203,19 @@ const DataProvider = ({ dataset, initState = null }) => {
         view: initState?.view || "table",
     })
     const [workingModeState, workingModeDispatch] = React.useReducer(workingModeReducer, {
-        workingMode: "normal",
+        workingMode: initState?.workingMode || "normal",
         showWorkingMode: false,
         onCalculation: false,
     })
     const stateRef = React.useRef()
+    const workingModeStateRef = React.useRef()
     const { pageId } = useLoaderData()
     const pageIdRef = React.useRef(pageId)
     const isMounted = React.useRef(true)
+
+    React.useEffect(() => {
+        workingModeStateRef.current = workingModeState
+    }, [workingModeState])
 
     React.useEffect(() => {
         return () => {
@@ -238,6 +254,7 @@ const DataProvider = ({ dataset, initState = null }) => {
                                         type: "UPDATE_DIFF",
                                         diffs: alignedDiffs,
                                         locators: alignedLocators,
+                                        sampleId: state.dataset[state.activeRow].sampleId,
                                     })
                                 } else {
                                     const err = await resp.text()
@@ -277,6 +294,7 @@ const DataProvider = ({ dataset, initState = null }) => {
 
     React.useEffect(() => {
         const handler = (e) => {
+            if (ON_REQUEST_LOCK.value === true) return
             if (stateRef.current.view !== "table") {
                 if (
                     e.target.tagName === "INPUT" ||
@@ -295,6 +313,7 @@ const DataProvider = ({ dataset, initState = null }) => {
                             state: {
                                 action: "next",
                                 view: stateRef.current.view,
+                                workingMode: workingModeStateRef.current.workingMode,
                             },
                         })
                     }
@@ -308,6 +327,7 @@ const DataProvider = ({ dataset, initState = null }) => {
                             state: {
                                 action: "previous",
                                 view: stateRef.current.view,
+                                workingMode: workingModeStateRef.current.workingMode,
                             },
                         })
                     }
@@ -351,6 +371,7 @@ const DataProvider = ({ dataset, initState = null }) => {
     }, [])
 
     const renderLoading = () => {
+        // return null
         if (workingModeState.onCalculation === false) return null
         return (
             <Modal dimmer='blurring' open={true} closeIcon={null}>

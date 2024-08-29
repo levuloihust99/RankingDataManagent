@@ -9,6 +9,7 @@ import { AlertContext } from "../../Alert/context"
 import { updateComparisons } from "../../../api/crud"
 import { doCopy } from "../../../lib/utils"
 import { diffTexts } from "../../../api/diff"
+import { ON_REQUEST_LOCK } from "../../../lib/lock"
 import "./style.css"
 
 const CardTextAreaContent = () => {
@@ -990,12 +991,15 @@ export const Comparisons = ({ comparisons, visible = true }) => {
                         }
                     }
                     if (alignedRequestData.length > 0) {
+                        ON_REQUEST_LOCK.value = true
                         workingModeDispatch({ type: "CALCULATION_ON" })
                         diffTexts(alignedRequestData).then(async (resp) => {
+                            ON_REQUEST_LOCK.value = false 
                             if (resp.status === 200) {
                                 const alignedDiffs = await resp.json()
                                 datasetDispatch({
                                     type: "UPDATE_DIFF",
+                                    sampleId: state.dataset[state.activeRow].sampleId,
                                     diffs: alignedDiffs,
                                     locators: alignedLocators,
                                 })
