@@ -3,7 +3,7 @@ import clsx from "clsx"
 import { v4 as uuidv4 } from "uuid"
 import { Modal, Loader } from "semantic-ui-react"
 import { useLoaderData, useParams, useNavigate, useLocation } from "react-router-dom"
-import { BACKEND_URL, recordsPerPage } from "../../lib/constant"
+import { BACKEND_URL, RECORDS_PER_PAGE } from "../../lib/constant"
 import { urlJoin } from "../../lib/utils"
 import { DataTable } from "./DataTable"
 import { Pagination } from "./Pagination"
@@ -20,7 +20,7 @@ import { ON_REQUEST_LOCK } from "../../lib/lock"
 import "./style.css"
 
 async function queryData(pageId) {
-    const queryArgs = new URLSearchParams({ pageNum: pageId, recordsPerPage })
+    const queryArgs = new URLSearchParams({ pageNum: pageId, recordsPerPage: RECORDS_PER_PAGE })
     const endpoint = urlJoin(BACKEND_URL, "paginated_data", "?" + queryArgs.toString())
     const response = await fetch(endpoint)
     if (response.status !== 200) return []
@@ -80,8 +80,7 @@ export const Dataset = () => {
         if (initState?.action === "next") {
             update.activeRow = 0
         } else if (initState?.action === "previous") {
-            update.activeRow =
-                parseInt(process.env.REACT_APP_RECORDS_PER_PAGE) - 1
+            update.activeRow = RECORDS_PER_PAGE - 1
         }
         if (initState?.view) {
             update.view = initState.view
@@ -102,7 +101,7 @@ export const Dataset = () => {
                 return await resp.json()
             })
             .then(({ count }) => {
-                const total = Math.ceil(count / recordsPerPage)
+                const total = Math.ceil(count / RECORDS_PER_PAGE)
                 if (isMounted.current === true) {
                     dispatch({ type: "LOADED_META", totalPage: total })
                 }
