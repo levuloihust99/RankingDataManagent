@@ -59,19 +59,10 @@ const datasetLoaderReducer = (state, action) => {
 }
 
 export const Dataset = () => {
-    let { pageId } = useParams()
-    pageId = parseInt(pageId)
-    console.log(pageId)
-    debugger
-    // const initState = {}
-    // if (action === "next") {
-    //     initState.activeRow = 0
-    //     initState.view = view
-    // } else if (action == "previous") {
-    //     initState.activeRow = parseInt(process.env.REACT_APP_RECORDS_PER_PAGE) - 1
-    //     initState.view = view
-    // }
-    debugger
+    const { pageId } = useLoaderData()
+    const [initState, setInitState] = React.useState(null)
+    const location = useLocation()
+    
     const [state, dispatch] = React.useReducer(datasetLoaderReducer, {
         onLoadingMeta: true,
         onLoadingData: true,
@@ -81,6 +72,21 @@ export const Dataset = () => {
         loadDataError: null,
     })
     const isMounted = React.useRef(true)
+
+    React.useEffect(() => {
+        const update = {}
+        const { state: initState } = location
+        if (initState?.action === "next") {
+            update.activeRow = 0
+        } else if (initState?.action === "previous") {
+            update.activeRow =
+                parseInt(process.env.REACT_APP_RECORDS_PER_PAGE) - 1
+        }
+        if (initState?.view) {
+            update.view = initState.view
+        }
+        setInitState({ view: update.view, activeRow: update.activeRow })
+    }, [pageId])
 
     React.useEffect(() => {
         fetch(urlJoin(BACKEND_URL, "total_data"))
@@ -143,7 +149,7 @@ export const Dataset = () => {
         if (state.loadDataError != null) {
             return <ErrorPage errorText={state.loadDataError} />
         }
-        return <DataProvider dataset={state.dataset} initState={null} />
+        return <DataProvider dataset={state.dataset} initState={initState} />
     }
 
     return (
@@ -178,12 +184,11 @@ export const Dataset = () => {
 }
 
 const DataProvider = ({ dataset, initState = null }) => {
-    debugger
     const navigate = useNavigate()
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const [state, dispatch] = React.useReducer(datasetReducer, {
         dataset,
-        activeRow: initState?.activeRow || -1,
+        activeRow: initState?.activeRow == null ? -1 : initState.activeRow,
         view: initState?.view || "table",
     })
     const [workingModeState, workingModeDispatch] = React.useReducer(workingModeReducer, {
@@ -286,7 +291,6 @@ const DataProvider = ({ dataset, initState = null }) => {
                             type: "NEXT_EXAMPLE",
                         })
                     } else {
-                        debugger
                         navigate(`/dataset/page/${pageIdRef.current + 1}`, {
                             state: {
                                 action: "next",
@@ -300,7 +304,6 @@ const DataProvider = ({ dataset, initState = null }) => {
                             type: "PREVIOUS_EXAMPLE",
                         })
                     } else {
-                        debugger
                         navigate(`/dataset/page/${pageIdRef.current - 1}`, {
                             state: {
                                 action: "previous",
