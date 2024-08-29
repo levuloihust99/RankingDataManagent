@@ -111,11 +111,18 @@ const EditableSpan = ({ op, idx }) => {
         mountIndicator.current = "subsequent"
     }, [])
 
+    React.useEffect(() => {
+        if (onEdit === true) {
+            if (eRef.current) {
+                eRef.current.select()
+            }
+        }
+    }, [onEdit])
+
     const handleDoubleClick = (e) => {
         if (onEdit === true) return
 
         setOnEdit(true)
-        window.getSelection().selectAllChildren(e.target)
 
         const clickCloseHandler = (e) => {
             let element = e.target
