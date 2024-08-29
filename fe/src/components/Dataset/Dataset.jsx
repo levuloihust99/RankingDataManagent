@@ -2,7 +2,7 @@ import React from "react"
 import clsx from "clsx"
 import { v4 as uuidv4 } from "uuid"
 import { Modal, Loader } from "semantic-ui-react"
-import { useLoaderData, defer, Await, useNavigate } from "react-router-dom"
+import { useLoaderData, useParams, useNavigate, useLocation } from "react-router-dom"
 import { BACKEND_URL, recordsPerPage } from "../../lib/constant"
 import { urlJoin } from "../../lib/utils"
 import { DataTable } from "./DataTable"
@@ -21,31 +21,65 @@ import "./style.css"
 async function queryData(pageId) {
     const queryArgs = new URLSearchParams({ pageNum: pageId, recordsPerPage })
     const endpoint = urlJoin(BACKEND_URL, "paginated_data", "?" + queryArgs.toString())
-    try {
-        const response = await fetch(endpoint)
-        if (response.status !== 200) return []
-        const { data } = await response.json()
-        return data.map((item) => ({
-            ...item,
-            outputs: item.outputs.map((out) => ({ ...out, id: uuidv4() })),
-        }))
-    } catch (e) {
-        throw new Response("", {
-            status: 500,
-            statusText: "Internal Server Error",
-        })
-    }
+    const response = await fetch(endpoint)
+    if (response.status !== 200) return []
+    const { data } = await response.json()
+    return data.map((item) => ({
+        ...item,
+        outputs: item.outputs.map((out) => ({ ...out, id: uuidv4() })),
+    }))
 }
 
 export async function dataLoader({ params }) {
     const pageId = parseInt(params.pageId)
-    return defer({ data: queryData(params.pageId), pageId })
+    return { pageId }
+}
+
+const datasetLoaderReducer = (state, action) => {
+    switch (action.type) {
+        case "LOADING_META_ON":
+            return { ...state, onLoadingMeta: true }
+        case "LOADING_META_OFF":
+            return { ...state, onLoadingMeta: false }
+        case "LOADED_META":
+            return { ...state, onLoadingMeta: false, totalPage: action.totalPage }
+        case "LOADED_DATA":
+            return { ...state, onLoadingData: false, dataset: action.dataset }
+        case "LOADING_DATA_ON":
+            return { ...state, onLoadingData: true }
+        case "LOADING_DATA_OFF":
+            return { ...state, onLoadingData: false }
+        case "SET_META_ERROR":
+            return { ...state, loadMetaError: action.error, onLoadingMeta: false }
+        case "SET_DATA_ERROR":
+            return { ...state, loadDataError: action.error, onLoadingData: false }
+        default:
+            return state
+    }
 }
 
 export const Dataset = () => {
-    const { data, pageId } = useLoaderData()
-    const [totalPageLoad, setTotalPageLoad] = React.useState(true)
-    const [totalPage, setTotalPage] = React.useState(0)
+    let { pageId } = useParams()
+    pageId = parseInt(pageId)
+    console.log(pageId)
+    debugger
+    // const initState = {}
+    // if (action === "next") {
+    //     initState.activeRow = 0
+    //     initState.view = view
+    // } else if (action == "previous") {
+    //     initState.activeRow = parseInt(process.env.REACT_APP_RECORDS_PER_PAGE) - 1
+    //     initState.view = view
+    // }
+    debugger
+    const [state, dispatch] = React.useReducer(datasetLoaderReducer, {
+        onLoadingMeta: true,
+        onLoadingData: true,
+        totalPage: -1,
+        dataset: null,
+        loadMetaError: null,
+        loadDataError: null,
+    })
     const isMounted = React.useRef(true)
 
     React.useEffect(() => {
@@ -56,16 +90,29 @@ export const Dataset = () => {
             .then(({ count }) => {
                 const total = Math.ceil(count / recordsPerPage)
                 if (isMounted.current === true) {
-                    setTotalPageLoad(false)
-                    setTotalPage(total)
+                    dispatch({ type: "LOADED_META", totalPage: total })
                 }
+            })
+            .catch((err) => {
+                dispatch({ type: "SET_META_ERROR", error: err.toString() })
             })
         return () => {
             isMounted.current = false
         }
     }, [])
 
-    if (totalPageLoad === true)
+    React.useEffect(() => {
+        dispatch({ type: "LOADING_DATA_ON" })
+        queryData(pageId)
+            .then((data) => {
+                dispatch({ type: "LOADED_DATA", dataset: data })
+            })
+            .catch((err) => {
+                dispatch({ type: "SET_DATA_ERROR", error: err.toString() })
+            })
+    }, [pageId])
+
+    if (state.onLoadingMeta === true)
         return (
             <Modal dimmer='blurring' open={true} closeIcon={null}>
                 <Loader active size='large'>
@@ -73,13 +120,30 @@ export const Dataset = () => {
                 </Loader>
             </Modal>
         )
+    if (state.loadMetaError != null) return <ErrorPage errorText={state.loadMetaError} />
 
     if (isNaN(pageId)) {
         return <ErrorPage errorText='Cannot parse page number' />
     } else if (pageId <= 0) {
         return <ErrorPage errorText='Page number cannot be less than or equal to 0' />
-    } else if (pageId > totalPage) {
+    } else if (pageId > state.totalPage) {
         return <ErrorPage errorText='Page number exceeds maximum' />
+    }
+
+    const renderContent = () => {
+        if (state.onLoadingData === true) {
+            return (
+                <Modal dimmer='blurring' open={true} closeIcon={null}>
+                    <Loader active size='large'>
+                        Loading
+                    </Loader>
+                </Modal>
+            )
+        }
+        if (state.loadDataError != null) {
+            return <ErrorPage errorText={state.loadDataError} />
+        }
+        return <DataProvider dataset={state.dataset} initState={null} />
     }
 
     return (
@@ -103,33 +167,24 @@ export const Dataset = () => {
                         marginBottom: "20px",
                     }}
                 >
-                    <Pagination pageId={pageId} totalPage={totalPage} />
+                    <Pagination pageId={pageId} totalPage={state.totalPage} />
                     <SaveButton />
                     <ActionBar />
                 </div>
-                <React.Suspense
-                    fallback={
-                        <Modal dimmer='blurring' open={true} closeIcon={null}>
-                            <Loader active size='large'>
-                                Loading
-                            </Loader>
-                        </Modal>
-                    }
-                >
-                    <Await resolve={data}>{(dataset) => <DataProvider dataset={dataset} />}</Await>
-                </React.Suspense>
+                {renderContent()}
             </div>
         </>
     )
 }
 
-const DataProvider = ({ dataset }) => {
+const DataProvider = ({ dataset, initState = null }) => {
+    debugger
     const navigate = useNavigate()
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const [state, dispatch] = React.useReducer(datasetReducer, {
         dataset,
-        activeRow: -1,
-        view: "table",
+        activeRow: initState?.activeRow || -1,
+        view: initState?.view || "table",
     })
     const [workingModeState, workingModeDispatch] = React.useReducer(workingModeReducer, {
         workingMode: "normal",
@@ -231,9 +286,12 @@ const DataProvider = ({ dataset }) => {
                             type: "NEXT_EXAMPLE",
                         })
                     } else {
-                        navigate(`/dataset/page/${pageIdRef.current + 1}`)
-                        dispatch({
-                            type: "ZERO_ACTIVE_ROW",
+                        debugger
+                        navigate(`/dataset/page/${pageIdRef.current + 1}`, {
+                            state: {
+                                action: "next",
+                                view: stateRef.current.view,
+                            },
                         })
                     }
                 } else if (e.keyCode == "37") {
@@ -242,9 +300,12 @@ const DataProvider = ({ dataset }) => {
                             type: "PREVIOUS_EXAMPLE",
                         })
                     } else {
-                        navigate(`/dataset/page/${pageIdRef.current - 1}`)
-                        dispatch({
-                            type: "MAX_ACTIVE_ROW",
+                        debugger
+                        navigate(`/dataset/page/${pageIdRef.current - 1}`, {
+                            state: {
+                                action: "previous",
+                                view: stateRef.current.view,
+                            },
                         })
                     }
                 } else if (e.keyCode == "32") {
