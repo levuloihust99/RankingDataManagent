@@ -254,9 +254,7 @@ function updateDiffOp(state, action) {
         const negative =
             draft.dataset[draft.activeRow].comparisons[action.compIdx].negatives[action.cardIdx]
         const diff = negative.diff
-        debugger
         if (JSON.stringify(diff[action.opIdx]) !== JSON.stringify(action.op)) {
-            debugger
             diff[action.opIdx] = action.op
             const tokens = []
             diff.forEach((op) => {
