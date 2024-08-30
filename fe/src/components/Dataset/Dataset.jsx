@@ -296,8 +296,8 @@ const DataProvider = ({ dataset, initState = null }) => {
             if (ON_REQUEST_LOCK.value === true) return
             if (stateRef.current.view !== "table") {
                 if (
-                    e.target.tagName === "INPUT" ||
-                    e.target.tagName === "TEXTAREA" ||
+                    (e.target.tagName === "INPUT" && !e.target.readOnly) ||
+                    (e.target.tagName === "TEXTAREA" && !e.target.readOnly) ||
                     e.target.className === "inserted-span"
                 ) {
                     return
