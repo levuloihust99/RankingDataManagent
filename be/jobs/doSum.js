@@ -42,19 +42,11 @@ const getPrompt = (content) => {
 
 const sampleTask = async (sample, count) => {
     try {
-        const dbRecord = await RankingSampleCollection.findOne({
-            sampleId: sample.sampleId
-        }).lean()
-        const { comparisons: [{ positives = [] } = {}, ..._] = [] } = dbRecord
-        if (positives.length > 0) {
-            console.log(`Skip sample #${count}`)
-            return
-        }
         const prompt = getPrompt(sample.input)
         const result = await model.generateContent(prompt)
-        const summ = result.response.text()
+        const summ = result.response.text().trim()
         await RankingSampleCollection.findOneAndUpdate(
-            { sampleId: dbRecord.sampleId },
+            { sampleId: sample.sampleId },
             {
                 $set: {
                     comparisons: [
@@ -118,8 +110,17 @@ async function main() {
         for await (const line of rl.value) {
             counter.value++
             const sample = JSON.parse(line)
+            const dbRecord = await RankingSampleCollection.findOne({
+                sampleId: sample.sampleId
+            }).lean()
+            const { comparisons: [{ positives = [] } = {}, ..._] = [] } =
+                dbRecord
+            if (positives.length > 0) {
+                console.log(`Skip sample #${counter.value}`)
+                continue
+            }
             tasks.push(sampleTask(sample, counter.value))
-            if (tasks.length == 10) {
+            if (tasks.length == 20) {
                 t0 = Date.now()
                 await Promise.all(tasks)
                 console.log(`Time elapsed: ${(Date.now() - t0) / 1000}s`)
