@@ -57,7 +57,7 @@ export const datasetReducer = (state, action) => {
             return updateDiff(state, action)
         case "UPDATE_DIFF_OP":
             return updateDiffOp(state, action)
-        case UPDATE_ENTITY:
+        case "UPDATE_ENTITY":
             return updateEntity(state, action)
         default:
             return state
@@ -270,7 +270,9 @@ function updateEntity(state, action) {
         const negative =
             draft.dataset[draft.activeRow].comparisons[action.compIdx].negatives[action.cardIdx]
         const entities = negative.entities
+        entities[action.entityIdx].text = action.text
     })
+    return nextState
 }
 
 export const workingModeReducer = (state, action) => {

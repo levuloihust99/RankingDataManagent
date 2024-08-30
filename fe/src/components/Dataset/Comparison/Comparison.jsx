@@ -202,6 +202,27 @@ const EditableSpan = ({ op, idx }) => {
         )
 }
 
+const CardDiffContent = ({ diff }) => {
+    return (
+        <div
+            style={{
+                padding: "10px",
+                width: "100%",
+            }}
+        >
+            <div>
+                {diff.map((op, idx) => {
+                    if (op.op === "equal") return <span key={idx}>{op.text}</span>
+                    if (op.op === "insert") return <EditableSpan key={idx} op={op} idx={idx} />
+                    if (op.op === "delete")
+                        return <span key={idx} className='deleted-span'>{`${op.text}`}</span>
+                    if (op.op === "replace") return <EditableSpan key={idx} op={op} idx={idx} />
+                })}
+            </div>
+        </div>
+    )
+}
+
 const EntitySpan = ({ text, idx }) => {
     const [onEdit, setOnEdit] = React.useState(false)
     const [liveText, setLiveText] = React.useState(text)
@@ -316,21 +337,19 @@ const EntitySpan = ({ text, idx }) => {
     return renderEntity()
 }
 
-const CardDiffContent = ({ diff }) => {
+const CardEntityContent = ({ entities }) => {
     return (
         <div
             style={{
                 padding: "10px",
-                width: "100%",
+                width: "100%"
             }}
         >
             <div>
-                {diff.map((op, idx) => {
-                    if (op.op === "equal") return <span key={idx}>{op.text}</span>
-                    if (op.op === "insert") return <EditableSpan key={idx} op={op} idx={idx} />
-                    if (op.op === "delete")
-                        return <span key={idx} className='deleted-span'>{`${op.text}`}</span>
-                    if (op.op === "replace") return <EditableSpan key={idx} op={op} idx={idx} />
+                {entities.map((entity, idx) => {
+                    if (entity.type === "outside")
+                        return <span key={idx}>{entity.text}</span>
+                    return <EntitySpan key={idx} text={entity.text} idx={idx} />
                 })}
             </div>
         </div>
@@ -471,9 +490,9 @@ const Card = ({
         if (workingModeState.workingMode === "entity") {
             const { entities = null } = metadata || {}
             if (!entities) {
-                return <CardDiffContent diff={[{ op: "equal", text: state.liveContent }]} />
+                return <CardEntityContent entities={[{ type: "outside", text: state.liveContent }]} />
             }
-            return <CardDiffContent diff={entities} />
+            return <CardEntityContent entities={entities} />
         }
     }
 
