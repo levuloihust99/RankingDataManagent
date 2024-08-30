@@ -57,6 +57,8 @@ export const datasetReducer = (state, action) => {
             return updateDiff(state, action)
         case "UPDATE_DIFF_OP":
             return updateDiffOp(state, action)
+        case UPDATE_ENTITY:
+            return updateEntity(state, action)
         default:
             return state
     }
@@ -234,15 +236,11 @@ function formatNegatives(state, action) {
 }
 
 function updateDiff(state, action) {
-    if (state.dataset[state.activeRow].sampleId !== action.sampleId)
-        return state
+    if (state.dataset[state.activeRow].sampleId !== action.sampleId) return state
     const nextState = produce(state, (draft) => {
         for (let i = 0; i < action.diffs.length; i++) {
             const { compIdx, negIdx } = action.locators[i]
-            const negative =
-                draft.dataset[draft.activeRow].comparisons[compIdx].negatives[
-                    negIdx
-                ]
+            const negative = draft.dataset[draft.activeRow].comparisons[compIdx].negatives[negIdx]
             negative.diff = action.diffs[i]
         }
     })
@@ -265,6 +263,14 @@ function updateDiffOp(state, action) {
         }
     })
     return nextState
+}
+
+function updateEntity(state, action) {
+    const nextState = produce(state, (draft) => {
+        const negative =
+            draft.dataset[draft.activeRow].comparisons[action.compIdx].negatives[action.cardIdx]
+        const entities = negative.entities
+    })
 }
 
 export const workingModeReducer = (state, action) => {

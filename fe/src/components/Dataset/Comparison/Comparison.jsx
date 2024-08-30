@@ -172,7 +172,7 @@ const EditableSpan = ({ op, idx }) => {
             return (
                 <input
                     ref={eRef}
-                    className="inserted-span"
+                    className='inserted-span'
                     style={{
                         outline: "none",
                         fontFamily: "inherit",
@@ -185,7 +185,7 @@ const EditableSpan = ({ op, idx }) => {
         return (
             <span
                 ref={eRef}
-                className="inserted-span"
+                className='inserted-span'
                 onDoubleClick={handleDoubleClick}
                 onChange={handleChange}
             >{`${liveOp.op === "replace" ? liveOp.by : liveOp.text}`}</span>
@@ -196,10 +196,124 @@ const EditableSpan = ({ op, idx }) => {
     if (liveOp.op === "replace")
         return (
             <>
-                <span className="deleted-span">{`${liveOp.text}`}</span>
+                <span className='deleted-span'>{`${liveOp.text}`}</span>
                 {renderInsertion()}
             </>
         )
+}
+
+const EntitySpan = ({ text, idx }) => {
+    const [onEdit, setOnEdit] = React.useState(false)
+    const [liveText, setLiveText] = React.useState(text)
+    const eRef = React.useRef()
+    const mountIndicator = React.useRef("initial")
+    const { dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const {
+        state: { cardIdx, compIdx },
+    } = React.useContext(CardContext)
+
+    React.useEffect(() => {
+        setLiveText(text)
+    }, [text])
+
+    React.useEffect(() => {
+        if (onEdit === false && mountIndicator.current !== "initial") {
+            // save dataset change
+            datasetDispatch({
+                type: "UPDATE_ENTITY",
+                entityIdx: idx,
+                cardIdx,
+                compIdx,
+                text: liveText,
+            })
+        }
+    }, [onEdit])
+
+    React.useEffect(() => {
+        mountIndicator.current = "subsequent"
+    }, [])
+
+    React.useEffect(() => {
+        if (onEdit === true) {
+            if (eRef.current) {
+                eRef.current.select()
+            }
+        }
+    }, [onEdit])
+
+    const handleDoubleClick = (e) => {
+        if (onEdit === true) return
+
+        setOnEdit(true)
+
+        const clickCloseHandler = (e) => {
+            let element = e.target
+            do {
+                if (eRef.current && element === eRef.current)
+                    // if click on this span, do nothing
+                    return
+                element = element.parentNode
+            } while (element)
+
+            // if click elsewhere, unfocus this span, remove the event handler
+            setOnEdit(false)
+            document.removeEventListener("click", clickCloseHandler)
+            document.removeEventListener("dblclick", dbclickCloseHandler)
+        }
+        const dbclickCloseHandler = (e) => {
+            let element = e.target
+            do {
+                if (eRef.current && element === eRef.current)
+                    // if dbclick on this span, do nothing
+                    return
+                element = element.parentNode
+            } while (element)
+
+            // if dbclick elsewhere, unfocus this span, remove the event handler
+            setOnEdit(false)
+            document.removeEventListener("click", clickCloseHandler)
+            document.removeEventListener("dblclick", dbclickCloseHandler)
+        }
+
+        setTimeout(() => {
+            document.addEventListener("click", clickCloseHandler)
+            document.addEventListener("dblclick", dbclickCloseHandler)
+        }, 0)
+    }
+
+    const handleChange = (e) => {
+        setLiveText(e.target.value)
+    }
+
+    const renderEntity = () => {
+        if (onEdit) {
+            return (
+                <input
+                    ref={eRef}
+                    className='inserted-span'
+                    style={{
+                        outline: "none",
+                        fontFamily: "inherit",
+                    }}
+                    value={liveText}
+                    onChange={handleChange}
+                    onDoubleClick={handleDoubleClick}
+                />
+            )
+        }
+        return (
+            <span
+                ref={eRef}
+                className='inserted-span'
+                onDoubleClick={handleDoubleClick}
+                onChange={handleChange}
+            >
+                {liveText}
+            </span>
+        )
+    }
+
+    return renderEntity()
 }
 
 const CardDiffContent = ({ diff }) => {
@@ -213,14 +327,10 @@ const CardDiffContent = ({ diff }) => {
             <div>
                 {diff.map((op, idx) => {
                     if (op.op === "equal") return <span key={idx}>{op.text}</span>
-                    if (op.op === "insert")
-                        return <EditableSpan key={idx} op={op} idx={idx} />
+                    if (op.op === "insert") return <EditableSpan key={idx} op={op} idx={idx} />
                     if (op.op === "delete")
-                        return (
-                            <span key={idx} className="deleted-span">{`${op.text}`}</span>
-                        )
-                    if (op.op === "replace")
-                        return <EditableSpan key={idx} op={op} idx={idx} />
+                        return <span key={idx} className='deleted-span'>{`${op.text}`}</span>
+                    if (op.op === "replace") return <EditableSpan key={idx} op={op} idx={idx} />
                 })}
             </div>
         </div>
@@ -355,13 +465,15 @@ const Card = ({
         if (workingModeState.workingMode === "normal") return <CardTextAreaContent />
         if (workingModeState.workingMode === "diff") {
             const { diff = null } = metadata || {}
-            if (!diff)
-                return (
-                    <CardDiffContent
-                        diff={[{ op: "equal", text: state.liveContent }]}
-                    />
-                )
+            if (!diff) return <CardDiffContent diff={[{ op: "equal", text: state.liveContent }]} />
             return <CardDiffContent diff={diff} />
+        }
+        if (workingModeState.workingMode === "entity") {
+            const { entities = null } = metadata || {}
+            if (!entities) {
+                return <CardDiffContent diff={[{ op: "equal", text: state.liveContent }]} />
+            }
+            return <CardDiffContent diff={entities} />
         }
     }
 
@@ -488,9 +600,7 @@ const Card = ({
                     )}
                 </div>
             </div>
-            <CardContext.Provider
-                value={{ state: { ...state, cardIdx: idx, compIdx }, dispatch }}
-            >
+            <CardContext.Provider value={{ state: { ...state, cardIdx: idx, compIdx }, dispatch }}>
                 {renderCardContent()}
             </CardContext.Provider>
         </div>
@@ -902,7 +1012,8 @@ const templateComparisons = [
 export const Comparisons = ({ comparisons, visible = true }) => {
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
-    const { state: workingModeState, dispatch: workingModeDispatch } = React.useContext(WorkingModeContext)
+    const { state: workingModeState, dispatch: workingModeDispatch } =
+        React.useContext(WorkingModeContext)
     const stateRef = React.useRef(state)
     const [showActionsMenu, setShowActionsMenu] = React.useState(false)
     const actionsMenuRef = React.useRef()
@@ -1001,7 +1112,7 @@ export const Comparisons = ({ comparisons, visible = true }) => {
                         ON_REQUEST_LOCK.value = true
                         workingModeDispatch({ type: "CALCULATION_ON" })
                         diffTexts(alignedRequestData).then(async (resp) => {
-                            ON_REQUEST_LOCK.value = false 
+                            ON_REQUEST_LOCK.value = false
                             if (resp.status === 200) {
                                 const alignedDiffs = await resp.json()
                                 datasetDispatch({
