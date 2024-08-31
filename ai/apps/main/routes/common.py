@@ -1,4 +1,3 @@
-import html
 import logging
 
 import sanic
@@ -23,7 +22,4 @@ async def diff_texts(request: Request):
     diffs = []
     for item in data:
         diffs.append(diff_text(item["diffTo"], item["diffOn"]))
-    for diff in diffs:
-        for op in diff:
-            op["text"] = html.escape(op["text"])
     return sanic.json(diffs)
