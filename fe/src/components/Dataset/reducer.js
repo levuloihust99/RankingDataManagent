@@ -14,7 +14,6 @@ export const datasetReducer = (state, action) => {
         case "SET_ACTIVE_ROW":
             return { ...state, activeRow: action.activeRow }
         case "UPDATE_DATASET":
-            debugger
             return { ...state, dataset: action.dataset }
         case "SET_TABLE_VIEW":
             return { ...state, activeRow: -1, view: "table" }
@@ -273,12 +272,14 @@ function updateEntity(state, action) {
                 action.itemType === "positive" ? "positives" : "negatives"
             ][action.cardIdx]
         const entities = item.entities
-        entities[action.entityIdx].text = action.text
-        const portions = []
-        entities.forEach((entity) => {
-            portions.push(entity.text)
-        })
-        item.content = portions.join("")
+        if (entities[action.entityIdx].text !== action.text) {
+            entities[action.entityIdx].text = action.text
+            const portions = []
+            entities.forEach((entity) => {
+                portions.push(entity.text)
+            })
+            item.content = portions.join("")
+        }
     })
     return nextState
 }

@@ -229,6 +229,7 @@ const EntitySpan = ({ text, idx }) => {
     const eRef = React.useRef()
     const mountIndicator = React.useRef("initial")
     const { dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const { state: cardState } = React.useContext(CardContext)
     const {
         state: { cardIdx, compIdx },
     } = React.useContext(CardContext)
@@ -246,6 +247,7 @@ const EntitySpan = ({ text, idx }) => {
                 cardIdx,
                 compIdx,
                 text: liveText,
+                itemType: cardState.type
             })
         }
     }, [onEdit])
@@ -347,7 +349,6 @@ const CardEntityContent = ({ entities }) => {
         >
             <div>
                 {entities.map((entity, idx) => {
-                    debugger
                     if (entity.type === "outside") return <span key={idx}>{entity.text}</span>
                     return <EntitySpan key={idx} text={entity.text} idx={idx} />
                 })}
