@@ -59,6 +59,8 @@ export const datasetReducer = (state, action) => {
             return updateDiffOp(state, action)
         case "UPDATE_ENTITY":
             return updateEntity(state, action)
+        case "REMOVE_ENTITY":
+            return removeEntity(state, action)
         default:
             return state
     }
@@ -280,6 +282,29 @@ function updateEntity(state, action) {
             })
             item.content = portions.join("")
         }
+    })
+    return nextState
+}
+
+function removeEntity(state, action) {
+    const nextState = produce(state, (draft) => {
+        const item =
+            draft.dataset[draft.activeRow].comparisons[action.compIdx][
+                action.itemType === "positive" ? "positives" : "negatives"
+            ][action.cardIdx]
+        const entities = item.entities
+        entities[action.entityIdx].type = "outside"
+        const updatedEntities = []
+        let prevPortion = null
+        for (let i = 0; i < entities.length; i++) {
+            if (entities[i].type === "outside" && prevPortion === "outside") {
+                updatedEntities[updatedEntities.length - 1].text += entities[i].text
+            } else {
+                updatedEntities.push({ ...entities[i] })
+            }
+            prevPortion = entities[i].type
+        }
+        item.entities = updatedEntities
     })
     return nextState
 }

@@ -226,6 +226,7 @@ const CardDiffContent = ({ diff }) => {
 const EntitySpan = ({ text, idx }) => {
     const [onEdit, setOnEdit] = React.useState(false)
     const [liveText, setLiveText] = React.useState(text)
+    const [showOptions, setShowOptions] = React.useState(false)
     const eRef = React.useRef()
     const mountIndicator = React.useRef("initial")
     const { dispatch: datasetDispatch } = React.useContext(DatasetContext)
@@ -247,7 +248,7 @@ const EntitySpan = ({ text, idx }) => {
                 cardIdx,
                 compIdx,
                 text: liveText,
-                itemType: cardState.type
+                itemType: cardState.type,
             })
         }
     }, [onEdit])
@@ -308,16 +309,22 @@ const EntitySpan = ({ text, idx }) => {
         setLiveText(e.target.value)
     }
 
+    const handleRemoveEntity = (e) => {
+        datasetDispatch({
+            type: "REMOVE_ENTITY",
+            entityIdx: idx,
+            cardIdx,
+            compIdx,
+            itemType: cardState.type,
+        })
+    }
+
     const renderEntity = () => {
         if (onEdit) {
             return (
                 <input
                     ref={eRef}
-                    className='inserted-span'
-                    style={{
-                        outline: "none",
-                        fontFamily: "inherit",
-                    }}
+                    className='entity-span'
                     value={liveText}
                     onChange={handleChange}
                     onDoubleClick={handleDoubleClick}
@@ -327,11 +334,31 @@ const EntitySpan = ({ text, idx }) => {
         return (
             <span
                 ref={eRef}
-                className='inserted-span'
+                className='entity-span'
                 onDoubleClick={handleDoubleClick}
+                onMouseEnter={(e) => setShowOptions(true)}
+                onMouseLeave={(e) => setShowOptions(false)}
                 onChange={handleChange}
             >
                 {liveText}
+                {showOptions && (
+                    <div
+                        className='actions-menu-item'
+                        style={{
+                            backgroundColor: "rgb(205, 205, 205)",
+                            color: "initial",
+                            position: "absolute",
+                            left: "calc(100% - 10px)",
+                            bottom: "calc(100% - 10px)",
+                            borderRadius: "8px",
+                            fontSize: "0.95em",
+                            padding: "6px",
+                        }}
+                        onClick={handleRemoveEntity}
+                    >
+                        <FontAwesomeIcon className='action-icon' icon={icon({ name: "xmark" })} />
+                    </div>
+                )}
             </span>
         )
     }

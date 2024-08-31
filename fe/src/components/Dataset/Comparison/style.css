@@ -123,4 +123,25 @@
     color: red;
     font-weight: bold;
     text-decoration: line-through;
+    color: rgb(205, 205, 205);
+}
+
+.entity-span {
+    color: blue;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.entity-span::before {
+    content: "{";
+}
+
+.entity-span::after {
+    content: "}";
+}
+
+.entity-span:focus {
+    cursor: text;
 }

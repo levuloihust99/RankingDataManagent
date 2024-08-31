@@ -30,6 +30,26 @@ function feFormat(content, entities) {
     return portions
 }
 
+/**
+ * Convert back from FE display entities to backend storage entities
+ */
+function beFormat(content, entities) {
+    const pointer = 0
+    const beEntities = []
+    for (const entity of entities) {
+        if (entity.type === "entity") {
+            beEntities.push({
+                value: entity.text,
+                start: pointer,
+                end: pointer + entity.text.length
+            })
+        } else {
+            pointer += entity.value.length
+        }
+    }
+    return beEntities
+}
+
 app.get("/paginated_data", async (req, res) => {
     console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} GET /paginated_data`)
     const query = req.query
@@ -70,6 +90,21 @@ app.post("/update_comparisons", async (req, res) => {
         `${moment().format("YYYY-MM-DD HH:mm:ss")} POST /update_comparisons`
     )
     const { sampleId, comparisons } = req.body
+    if (comparisons && comparisons.length > 0) {
+        for (const comp of comparisons) {
+            const { negatives = [], positives = [] } = comp
+            for (const neg of negatives) {
+                if (neg.entities) {
+                    neg.entities = beFormat(neg.content, neg.entities)
+                }
+            }
+            for (const pos of positives) {
+                if (pos.entities) {
+                    pos.entities = beFormat(pos.content, pos.entities)
+                }
+            }
+        }
+    }
     try {
         await RankingSampleCollection.findOneAndUpdate(
             { sampleId },
