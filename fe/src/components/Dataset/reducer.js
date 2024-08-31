@@ -158,7 +158,11 @@ function clonePosToNeg(state, action) {
     const nextState = produce(state, (draft) => {
         const comp = draft.dataset[action.rowIdx].comparisons[action.comparisonIdx]
         comp.negatives = [
-            { content: action.content, metadata: { generator: uuidv4() } },
+            {
+                content: action.content,
+                entities: action.entities,
+                metadata: { generator: uuidv4() },
+            },
             ...comp.negatives,
         ]
     })
@@ -169,7 +173,11 @@ function cloneNegToPos(state, action) {
     const nextState = produce(state, (draft) => {
         const comp = draft.dataset[action.rowIdx].comparisons[action.comparisonIdx]
         comp.positives = [
-            { content: action.content, metadata: { generator: uuidv4() } },
+            {
+                content: action.content,
+                entities: action.entities,
+                metadata: { generator: uuidv4() },
+            },
             ...comp.positives,
         ]
     })

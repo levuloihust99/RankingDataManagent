@@ -603,13 +603,13 @@ const Card = ({
                                 <FontAwesomeIcon
                                     className='action-icon'
                                     icon={icon({ name: "arrow-right" })}
-                                    onClick={(e) => cloneFn({ content: state.liveContent })}
+                                    onClick={(e) => cloneFn({ content, entities: metadata?.entities })}
                                 />
                             ) : (
                                 <FontAwesomeIcon
                                     className='action-icon'
                                     icon={icon({ name: "arrow-left" })}
-                                    onClick={(e) => cloneFn({ content: state.liveContent })}
+                                    onClick={(e) => cloneFn({ content, entities: metadata?.entities })}
                                 />
                             )}
                             <FontAwesomeIcon
@@ -724,19 +724,21 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
         })
     }
 
-    const handleClonePosToNeg = ({ content }) => {
+    const handleClonePosToNeg = ({ content, entities }) => {
         datasetDispatch({
             type: "CLONE_POS_TO_NEG",
             content,
+            entities,
             comparisonIdx: idx,
             rowIdx: state.activeRow,
         })
     }
 
-    const handleCloneNegToPos = ({ content }) => {
+    const handleCloneNegToPos = ({ content, entities }) => {
         datasetDispatch({
             type: "CLONE_NEG_TO_POS",
             content,
+            entities,
             comparisonIdx: idx,
             rowIdx: state.activeRow,
         })
