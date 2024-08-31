@@ -4,6 +4,25 @@ const { Schema } = mongoose
 const { ObjectId } = mongoose.Types
 
 
+const EntitySchema = new Schema(
+    {
+        value: {
+            type: String,
+            required: true
+        },
+        start: {
+            type: Number,
+            required: true
+        },
+        end: {
+            type: Number,
+            required: true
+        }
+    },
+    { _id: false }
+)
+
+
 const RankingOutputSchema = new Schema({
     content: {
         type: String,
@@ -12,6 +31,10 @@ const RankingOutputSchema = new Schema({
     score: {
         type: Number,
         default: 0
+    },
+    entities: {
+        type: [EntitySchema],
+        default: []
     },
     metadata: {
         type: Object,

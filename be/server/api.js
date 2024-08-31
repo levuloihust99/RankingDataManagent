@@ -34,7 +34,7 @@ function feFormat(content, entities) {
  * Convert back from FE display entities to backend storage entities
  */
 function beFormat(content, entities) {
-    const pointer = 0
+    let pointer = 0
     const beEntities = []
     for (const entity of entities) {
         if (entity.type === "entity") {
@@ -44,7 +44,7 @@ function beFormat(content, entities) {
                 end: pointer + entity.text.length
             })
         } else {
-            pointer += entity.value.length
+            pointer += entity.text.length
         }
     }
     return beEntities
