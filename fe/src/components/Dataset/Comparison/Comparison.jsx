@@ -367,6 +367,41 @@ const EntitySpan = ({ text, idx }) => {
 }
 
 const CardEntityContent = ({ entities }) => {
+    const { dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const {
+        state: { cardIdx, compIdx, type: itemType },
+    } = React.useContext(CardContext)
+    const ref = React.useRef()
+
+    const handleMouseUp = (e) => {
+        const selection = document.getSelection()
+        if (selection.focusNode !== selection.anchorNode) return
+        let start = selection.anchorOffset
+        let end = selection.focusOffset
+        if (start === end) return
+        if (start > end) {
+            let tmp = start
+            start = end
+            end = tmp
+        }
+        let entityIdx = 0
+        for (let i = 0; i < ref.current.children.length; i++) {
+            if (ref.current.children[i] === selection.focusNode.parentElement) {
+                entityIdx = i
+                break
+            }
+        }
+        datasetDispatch({
+            type: "TAG_ENTITY",
+            cardIdx,
+            compIdx,
+            itemType,
+            start,
+            end,
+            entityIdx,
+        })
+    }
+
     return (
         <div
             style={{
@@ -374,7 +409,7 @@ const CardEntityContent = ({ entities }) => {
                 width: "100%",
             }}
         >
-            <div>
+            <div ref={ref} onMouseUp={handleMouseUp}>
                 {entities.map((entity, idx) => {
                     if (entity.type === "outside") return <span key={idx}>{entity.text}</span>
                     return <EntitySpan key={idx} text={entity.text} idx={idx} />

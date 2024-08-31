@@ -61,6 +61,8 @@ export const datasetReducer = (state, action) => {
             return updateEntity(state, action)
         case "REMOVE_ENTITY":
             return removeEntity(state, action)
+        case "TAG_ENTITY":
+            return tagEntity(state, action)
         default:
             return state
     }
@@ -303,6 +305,41 @@ function removeEntity(state, action) {
                 updatedEntities.push({ ...entities[i] })
             }
             prevPortion = entities[i].type
+        }
+        item.entities = updatedEntities
+    })
+    return nextState
+}
+
+function tagEntity(state, action) {
+    const nextState = produce(state, (draft) => {
+        const item =
+            draft.dataset[draft.activeRow].comparisons[action.compIdx][
+                action.itemType === "positive" ? "positives" : "negatives"
+            ][action.cardIdx]
+        const entities = item.entities
+        const updatedEntities = []
+        for (let i = 0; i < entities.length; i++) {
+            if (i === action.entityIdx) {
+                if (action.start > 0) {
+                    updatedEntities.push({
+                        type: "outside",
+                        text: entities[i].text.slice(0, action.start),
+                    })
+                }
+                updatedEntities.push({
+                    type: "entity",
+                    text: entities[i].text.slice(action.start, action.end),
+                })
+                if (action.end < entities[i].text.length - 1) {
+                    updatedEntities.push({
+                        type: "outside",
+                        text: entities[i].text.slice(action.end),
+                    })
+                }
+            } else {
+                updatedEntities.push({ ...entities[i] })
+            }
         }
         item.entities = updatedEntities
     })
