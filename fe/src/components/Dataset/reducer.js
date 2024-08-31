@@ -334,7 +334,7 @@ function tagEntity(state, action) {
                     type: "entity",
                     text: entities[i].text.slice(action.start, action.end),
                 })
-                if (action.end < entities[i].text.length - 1) {
+                if (action.end < entities[i].text.length) {
                     updatedEntities.push({
                         type: "outside",
                         text: entities[i].text.slice(action.end),

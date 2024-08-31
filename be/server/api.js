@@ -24,7 +24,7 @@ function feFormat(content, entities) {
         portions.push({ type: "entity", text: entity.value })
         pointer = entity.end
     }
-    if (pointer < content.length - 1) {
+    if (pointer < content.length) {
         portions.push({ type: "outside", text: content.slice(pointer) })
     }
     return portions
