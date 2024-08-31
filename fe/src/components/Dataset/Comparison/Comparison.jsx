@@ -552,7 +552,7 @@ const Card = ({
         }
         if (workingModeState.workingMode === "entity") {
             const { entities = null } = metadata || {}
-            if (!entities) {
+            if (!entities || entities.length === 0) {
                 return (
                     <CardEntityContent entities={[{ type: "outside", text: state.liveContent }]} />
                 )

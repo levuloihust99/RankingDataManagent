@@ -317,7 +317,10 @@ function tagEntity(state, action) {
             draft.dataset[draft.activeRow].comparisons[action.compIdx][
                 action.itemType === "positive" ? "positives" : "negatives"
             ][action.cardIdx]
-        const entities = item.entities || [{ type: "outside", text: item.content }]
+        let entities = item.entities
+        if (!entities || entities.length === 0) {
+            entities = [{ type: "outside", text: item.content }]
+        }
         const updatedEntities = []
         for (let i = 0; i < entities.length; i++) {
             if (i === action.entityIdx) {

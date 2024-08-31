@@ -43,9 +43,8 @@ function beFormat(content, entities) {
                 start: pointer,
                 end: pointer + entity.text.length
             })
-        } else {
-            pointer += entity.text.length
         }
+        pointer += entity.text.length
     }
     return beEntities
 }
@@ -70,12 +69,12 @@ app.get("/paginated_data", async (req, res) => {
             for (const comp of doc.comparisons) {
                 const { negatives = [], positives = [] } = comp
                 for (const neg of negatives) {
-                    if (neg.entities) {
+                    if (neg.entities && neg.entities.length > 0) {
                         neg.entities = feFormat(neg.content, neg.entities)
                     }
                 }
                 for (const pos of positives) {
-                    if (pos.entities) {
+                    if (pos.entities && pos.entities.length > 0) {
                         pos.entities = feFormat(pos.content, pos.entities)
                     }
                 }
@@ -94,12 +93,12 @@ app.post("/update_comparisons", async (req, res) => {
         for (const comp of comparisons) {
             const { negatives = [], positives = [] } = comp
             for (const neg of negatives) {
-                if (neg.entities) {
+                if (neg.entities && neg.entities.length > 0) {
                     neg.entities = beFormat(neg.content, neg.entities)
                 }
             }
             for (const pos of positives) {
-                if (pos.entities) {
+                if (pos.entities && pos.entities.length > 0) {
                     pos.entities = beFormat(pos.content, pos.entities)
                 }
             }
