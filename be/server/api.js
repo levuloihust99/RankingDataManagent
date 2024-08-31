@@ -8,6 +8,28 @@ import { getRNG } from "../lib/seedRandom.js"
 import { AISERVICE_URL } from "../env.js"
 import { urlJoin } from "../lib/utils.js"
 
+/**
+ * Format entities for FE display
+ */
+function feFormat(content, entities) {
+    const portions = []
+    let pointer = 0
+    for (const entity of entities) {
+        if (entity.start > pointer) {
+            portions.push({
+                type: "outside",
+                text: content.slice(pointer, entity.start)
+            })
+        }
+        portions.push({ type: "entity", text: entity.value })
+        pointer = entity.end
+    }
+    if (pointer < content.length - 1) {
+        portions.push({ type: "outside", text: content.slice(pointer) })
+    }
+    return portions
+}
+
 app.get("/paginated_data", async (req, res) => {
     console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} GET /paginated_data`)
     const query = req.query
@@ -23,6 +45,23 @@ app.get("/paginated_data", async (req, res) => {
         .skip(offset)
         .limit(recordsPerPage)
         .lean()
+    for (const doc of docs) {
+        if (doc.comparisons && doc.comparisons.length > 0) {
+            for (const comp of doc.comparisons) {
+                const { negatives = [], positives = [] } = comp
+                for (const neg of negatives) {
+                    if (neg.entities) {
+                        neg.entities = feFormat(neg.content, neg.entities)
+                    }
+                }
+                for (const pos of positives) {
+                    if (pos.entities) {
+                        pos.entities = feFormat(pos.content, pos.entities)
+                    }
+                }
+            }
+        }
+    }
     res.send({ data: docs })
 })
 

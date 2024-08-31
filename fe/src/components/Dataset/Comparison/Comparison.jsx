@@ -342,13 +342,13 @@ const CardEntityContent = ({ entities }) => {
         <div
             style={{
                 padding: "10px",
-                width: "100%"
+                width: "100%",
             }}
         >
             <div>
                 {entities.map((entity, idx) => {
-                    if (entity.type === "outside")
-                        return <span key={idx}>{entity.text}</span>
+                    debugger
+                    if (entity.type === "outside") return <span key={idx}>{entity.text}</span>
                     return <EntitySpan key={idx} text={entity.text} idx={idx} />
                 })}
             </div>
@@ -490,7 +490,9 @@ const Card = ({
         if (workingModeState.workingMode === "entity") {
             const { entities = null } = metadata || {}
             if (!entities) {
-                return <CardEntityContent entities={[{ type: "outside", text: state.liveContent }]} />
+                return (
+                    <CardEntityContent entities={[{ type: "outside", text: state.liveContent }]} />
+                )
             }
             return <CardEntityContent entities={entities} />
         }
@@ -619,7 +621,17 @@ const Card = ({
                     )}
                 </div>
             </div>
-            <CardContext.Provider value={{ state: { ...state, cardIdx: idx, compIdx }, dispatch }}>
+            <CardContext.Provider
+                value={{
+                    state: {
+                        ...state,
+                        cardIdx: idx,
+                        compIdx,
+                        type: negative === true ? "negative" : "positive",
+                    },
+                    dispatch,
+                }}
+            >
                 {renderCardContent()}
             </CardContext.Provider>
         </div>
@@ -743,6 +755,7 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
                                 updateItemFn={handleUpdateCompareItem}
                                 deleteFn={handleDeleteCompareItem}
                                 negative={false}
+                                metadata={{ entities: pos.entities }}
                             />
                         ))}
                         <div
@@ -776,7 +789,7 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
                                 updateItemFn={handleUpdateCompareItem}
                                 deleteFn={handleDeleteCompareItem}
                                 negative={true}
-                                metadata={{ diff: neg.diff }}
+                                metadata={{ diff: neg.diff, entities: neg.entities }}
                             />
                         ))}
                         <div

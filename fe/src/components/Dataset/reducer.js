@@ -14,6 +14,7 @@ export const datasetReducer = (state, action) => {
         case "SET_ACTIVE_ROW":
             return { ...state, activeRow: action.activeRow }
         case "UPDATE_DATASET":
+            debugger
             return { ...state, dataset: action.dataset }
         case "SET_TABLE_VIEW":
             return { ...state, activeRow: -1, view: "table" }
@@ -267,10 +268,17 @@ function updateDiffOp(state, action) {
 
 function updateEntity(state, action) {
     const nextState = produce(state, (draft) => {
-        const negative =
-            draft.dataset[draft.activeRow].comparisons[action.compIdx].negatives[action.cardIdx]
-        const entities = negative.entities
+        const item =
+            draft.dataset[draft.activeRow].comparisons[action.compIdx][
+                action.itemType === "positive" ? "positives" : "negatives"
+            ][action.cardIdx]
+        const entities = item.entities
         entities[action.entityIdx].text = action.text
+        const portions = []
+        entities.forEach((entity) => {
+            portions.push(entity.text)
+        })
+        item.content = portions.join("")
     })
     return nextState
 }
