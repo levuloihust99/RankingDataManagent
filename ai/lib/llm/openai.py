@@ -44,5 +44,8 @@ class OpenAICompletion:
             resp.raise_for_status()
 
         data = resp.json()
-        completion = data["choices"][0]["message"]["content"]
+        try:
+            completion = data["choices"][0]["message"]["content"]
+        except:
+            raise Exception(data)
         return completion

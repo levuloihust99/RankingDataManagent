@@ -1,0 +1,11 @@
+Given a document and its summary, generate 5 non-factual summaries that are almost the same as the original summary, but with wrong entities. Entities in the reference summary are enclosed in curly braces. Each output summary should only contain 1-3 wrong entities, not too many. The output should be in Vietnamese. Numbering each output summary. Do not include markdown notations.
+
+**Text**
+"""
+{document}
+"""
+
+**Summary**
+"""
+{summary}
+"""
