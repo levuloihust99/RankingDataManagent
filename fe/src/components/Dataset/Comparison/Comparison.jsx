@@ -340,7 +340,7 @@ const EntitySpan = ({ text, idx }) => {
                 onMouseLeave={(e) => setShowOptions(false)}
                 onChange={handleChange}
             >
-                {liveText}
+                {`{${liveText}}`}
                 {showOptions && (
                     <div
                         className='actions-menu-item'
@@ -374,6 +374,7 @@ const CardEntityContent = ({ entities }) => {
     const ref = React.useRef()
 
     const handleMouseUp = (e) => {
+        if (e.target.className === "entity-span") return
         const selection = document.getSelection()
         if (selection.focusNode !== selection.anchorNode) return
         let start = selection.anchorOffset

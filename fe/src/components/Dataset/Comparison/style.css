@@ -128,18 +128,18 @@
 .entity-span {
     color: blue;
     font-weight: bold;
-    user-select: none;
+    /* user-select: none; */
     cursor: pointer;
     position: relative;
 }
 
-.entity-span::before {
+/* .entity-span::before {
     content: "{";
 }
 
 .entity-span::after {
     content: "}";
-}
+} */
 
 .entity-span:focus {
     cursor: text;
