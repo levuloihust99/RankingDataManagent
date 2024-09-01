@@ -54,7 +54,7 @@ def auto_handle_error(func):
             return await func(*args, **kwargs)
         except httpx.HTTPStatusError as exc:
             logger.error("Encounter error", exc_info=True)
-            raise
+            return exc
         except:
             logger.error("Encounter error", exc_info=True)
             return None
@@ -89,6 +89,7 @@ async def handle_post_jobs(jobs: list[dict]):
     """
 
     collection = getattr(asyncio.get_running_loop(), "collection")
+    should_continue = True
 
     for job in jobs:
         context = job["context"]
@@ -98,6 +99,10 @@ async def handle_post_jobs(jobs: list[dict]):
                     json.dumps(context)
                 )
             )
+            continue
+
+        if isinstance(job["completion"], Exception):
+            should_continue = False
             continue
 
         try:
@@ -152,8 +157,9 @@ async def handle_post_jobs(jobs: list[dict]):
                 "Error invalidating entity: {}".format(json.dumps(context)),
                 exc_info=True,
             )
-            # continue
-            raise
+            continue
+
+    return should_continue
 
 
 async def launch(args):
@@ -222,9 +228,10 @@ async def launch(args):
                             "completion": completion,
                         }
                     )
-                await handle_post_jobs(post_jobs)
+                should_continue = await handle_post_jobs(post_jobs)
+                if not should_continue:
+                    return
                 jobs = []
-                await asyncio.sleep(20)
 
     if len(jobs) > 0:
         completions = await asyncio.gather(*[job["task"] for job in jobs])
