@@ -24,9 +24,6 @@ with prompt_path.open("r", encoding="utf-8") as reader:
     PROMPT_TEMPLATE = reader.read()
 
 
-BATCH_SIZE = 1
-
-
 def get_env(env_var):
     try:
         return os.environ[env_var]
@@ -215,7 +212,7 @@ async def launch(args):
                 }
             )
 
-            if len(jobs) == BATCH_SIZE:
+            if len(jobs) == args.batch_size:
                 completions = await asyncio.gather(*[job["task"] for job in jobs])
                 post_jobs = []
                 for job_detail, completion in zip(jobs, completions):
@@ -244,8 +241,9 @@ async def launch(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="gpt-4")
+    parser.add_argument("--model", default="gpt-4o-mini")
     parser.add_argument("--skip", type=int, default=0)
+    parser.add_argument("--batch_size", type=int, default=20)
     args = parser.parse_args()
     asyncio.run(launch(args))
 
