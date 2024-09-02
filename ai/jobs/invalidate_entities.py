@@ -231,6 +231,9 @@ async def launch(args):
                 should_continue = await handle_post_jobs(post_jobs)
                 if not should_continue:
                     return
+                if args.add_delay > 0:
+                    logger.info("Delaying for {}s...".format(args.add_delay))
+                    await asyncio.sleep(args.add_delay)
                 jobs = []
 
     if len(jobs) > 0:
@@ -251,6 +254,7 @@ def main():
     parser.add_argument("--model", default="gpt-4o-mini")
     parser.add_argument("--skip", type=int, default=0)
     parser.add_argument("--batch_size", type=int, default=20)
+    parser.add_argument("--add_delay", type=int, default=0)
     args = parser.parse_args()
     asyncio.run(launch(args))
 
