@@ -13,6 +13,8 @@ services:
     environment:
       - REACT_APP_BACKEND_URL=/api
       - REACT_APP_RECORDS_PER_PAGE=${RECORDS_PER_PAGE}
+    networks:
+      - rdm-network
 
   mongo:
     image: 'mongo:latest'
@@ -22,6 +24,8 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    networks:
+      - rdm-network
 
   backend:
     build:
@@ -36,12 +40,20 @@ services:
       - MONGO_COLLECTION=${MONGO_COLLECTION}
       - AISERVICE_HOST=${AISERVICE_HOST}
       - AISERVICE_PORT=${AISERVICE_PORT}
+    networks:
+      - rdm-network
 
   aiservice:
     build:
       context: ./ai
     environment:
       - PORT=${AISERVICE_PORT}
+    networks:
+      - rdm-network
 
 volumes:
   db-volume:
+
+networks:
+  rdm-network:
+    name: rdm
