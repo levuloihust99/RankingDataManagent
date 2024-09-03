@@ -51,6 +51,10 @@ const Comparison = new Schema({
         type: [RankingOutputSchema],
         default: []
     },
+    metadata: {
+        type: Object,
+        default: {}
+    }
 }, { _id: false })
 
 const RankingSampleSchema = new Schema({

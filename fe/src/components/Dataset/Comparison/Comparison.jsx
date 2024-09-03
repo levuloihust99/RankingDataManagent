@@ -477,6 +477,7 @@ const Card = ({
     })
     const { state: workingModeState } = React.useContext(WorkingModeContext)
     const [showActions, setShowActions] = React.useState(false)
+    const { metadata: compMetadata } = React.useContext(ComparisonRowContext)
     const actionsRef = React.useRef()
 
     React.useEffect(() => {
@@ -545,6 +546,7 @@ const Card = ({
     }
 
     const renderCardContent = () => {
+        if (compMetadata.type !== "Non-conciseness") return <CardTextAreaContent />
         if (workingModeState.workingMode === "normal") return <CardTextAreaContent />
         if (workingModeState.workingMode === "diff") {
             const { diff = null } = metadata || {}
@@ -604,13 +606,17 @@ const Card = ({
                                 <FontAwesomeIcon
                                     className='action-icon'
                                     icon={icon({ name: "arrow-right" })}
-                                    onClick={(e) => cloneFn({ content, entities: metadata?.entities })}
+                                    onClick={(e) =>
+                                        cloneFn({ content, entities: metadata?.entities })
+                                    }
                                 />
                             ) : (
                                 <FontAwesomeIcon
                                     className='action-icon'
                                     icon={icon({ name: "arrow-left" })}
-                                    onClick={(e) => cloneFn({ content, entities: metadata?.entities })}
+                                    onClick={(e) =>
+                                        cloneFn({ content, entities: metadata?.entities })
+                                    }
                                 />
                             )}
                             <FontAwesomeIcon
@@ -702,8 +708,9 @@ const Card = ({
     )
 }
 
-const ComparisonRow = ({ positives, negatives, idx }) => {
+const ComparisonRow = () => {
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const { positives, negatives, idx } = React.useContext(ComparisonRowContext)
     const [show, setShow] = React.useState(false)
     const [showCriterion, setShowCriterion] = React.useState(false)
     const [criterion, setCriterion] = React.useState("conciseness")
@@ -1020,6 +1027,8 @@ const ComparisonRow = ({ positives, negatives, idx }) => {
     )
 }
 
+const ComparisonRowContext = React.createContext(null)
+
 const CompareTable = ({ comparisons }) => {
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
     const handleCreateComparison = () => {
@@ -1039,12 +1048,17 @@ const CompareTable = ({ comparisons }) => {
             </thead>
             <tbody>
                 {comparisons.map((comp, idx) => (
-                    <ComparisonRow
+                    <ComparisonRowContext.Provider
                         key={idx}
-                        positives={comp.positives}
-                        negatives={comp.negatives}
-                        idx={idx}
-                    />
+                        value={{
+                            idx,
+                            positives: comp.positives,
+                            negatives: comp.negatives,
+                            metadata: comp.metadata,
+                        }}
+                    >
+                        <ComparisonRow />
+                    </ComparisonRowContext.Provider>
                 ))}
                 <tr>
                     <td colSpan={2}>

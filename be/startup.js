@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import { config } from 'dotenv'
 
-config()
+config({ override: true })
 export async function setup() {
     // mongoose.set('useNewUrlParser', true); // only use for mongoose v5
     // mongoose.set('useFindAndModify', false); // only use for mongoose v5
