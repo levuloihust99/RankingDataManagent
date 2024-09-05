@@ -1,0 +1,65 @@
+# Task overview
+You will receive a news article. Your task is to list the three most important facts from that article, then create a number of summaries for that article.
+
+# Instructions
+
+**1. List facts**
+- Before creating summaries, I want you to list the 3 most important facts from the input article.
+
+**2. Number of summaries**
+- You must create 9 summaries in total.
+
+**3. Grouping summaries**
+- Divide the 9 summaries into 3 groups, each of which contains 3 summaries.
+
+**4. Grouping criteria**
+- Each group contains summaries that cover the same number of the listed facts. Specifically, the first group contains 3 summaries, each of which contains only one of the listed facts. Similarly, each summary in the second group contains 2 of 3 listed facts, and summaries in the last group cover all 3 three listed facts.
+
+**5. Summary length**
+- Each summary must be no more than three sentences long.
+- Besides the facts that the summary covers, include other less or non important information to ensure the summary is at about 100-word length. Below is an example of a summary with ideal length:
+"Tài xế lái xe đi ngược chiều trên đường cao tốc Hà Nội - Hải Phòng đã bị phạt 7,5 triệu đồng và tước bằng lái 5 tháng theo quy định của Nghị định 46/2016/NĐ-CP về vi phạm hành chính trong giao thông. Hành vi này được xem là nguy hiểm và có thể gây hại đến tính mạng của người khác và phương tiện giao thông khác."
+
+**6. Mention facts in each summary**
+- For each summary, explicitly mention which facts it covers.
+
+**7. Facts covered in each summary**
+- Suppose we have 3 facts A, B, C, then the facts covered in each summary should be as following:
+(1) Summary 1: Fact A
+(2) Summary 2: Fact B
+(3) Summary 3: Fact C
+(4) Summary 4: Fact A, B
+(5) Summary 5: Fact B, C
+(6) Summary 6: Fact A, C
+(7) Summary 7: Fact A, B, C
+(8) Summary 8: Fact A, B, C
+(9) Summary 9: Fact A, B, C
+
+**8. Summary language**
+- The output summaries MUST BE IN VIETNAMESE.
+
+**9. Output format**
+- Reply in the following JSON format:
+```json
+{
+    "facts": [  // Array of facts
+        "fact_id": number,  // numbering fact_id with incrementing integers, i.e. 1, 2, 3, ...
+        "content": string,  // description of the fact
+    ]
+    "groups": [  // Array of groups
+        "group_id": number,  // numbering group_id with incrementing integers, i.e. 1, 2, 3, ...
+        "summaries": [  // Array of summaries in each group
+            {
+                "facts": [fact_id],  // facts covered in this summary
+                "summary": ...
+            }
+        ]
+    ]
+}
+```
+
+# Inputs
+Below is the news article for you:
+"""
+%s
+"""
