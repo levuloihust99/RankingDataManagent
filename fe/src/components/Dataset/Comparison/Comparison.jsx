@@ -1174,6 +1174,9 @@ export const Comparisons = ({ comparisons, visible = true }) => {
 
     React.useEffect(() => {
         const handler = (e) => {
+            if (stateRef.current.view !== "compare") {
+                return
+            }
             if ((e.ctrlKey || e.metaKey) && e.key === "s") {
                 e.preventDefault()
                 const ex = stateRef.current.dataset[stateRef.current.activeRow]

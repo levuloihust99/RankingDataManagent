@@ -11,3 +11,14 @@ export const updateComparisons = async ({ sampleId, comparisons }) => {
         },
     })
 }
+
+export const updateOutputs = async ({ sampleId, outputs }) => {
+    const endpoint = urlJoin(BACKEND_URL, "/update_outputs")
+    return await fetch(endpoint, {
+        method: "POST",
+        body: JSON.stringify({ sampleId, outputs }),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+}

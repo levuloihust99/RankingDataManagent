@@ -17,6 +17,10 @@ export const datasetReducer = (state, action) => {
             return { ...state, dataset: action.dataset }
         case "ADD_OUTPUT":
             return addOutput(state, action)
+        case "REMOVE_OUTPUT":
+            return removeOutput(state, action)
+        case "CHANGE_OUTPUT":
+            return changeOutput(state, action)
         case "SET_TABLE_VIEW":
             return { ...state, activeRow: -1, view: "table" }
         case "SET_RANK_VIEW":
@@ -130,6 +134,24 @@ function addOutput(state, action) {
             },
             id: uuidv4(),
         })
+    })
+    return nextState
+}
+
+function changeOutput(state, action) {
+    const nextState = produce(state, (draft) => {
+        const output = draft.dataset[draft.activeRow].outputs[action.outputIdx]
+        output.content = action.content
+        output.metadata.generator = action.generator
+    })
+    return nextState
+}
+
+function removeOutput(state, action) {
+    const nextState = produce(state, (draft) => {
+        let outputs = draft.dataset[draft.activeRow].outputs
+        outputs = [...outputs.slice(0, action.outputIdx), ...outputs.slice(action.outputIdx + 1)]
+        draft.dataset[draft.activeRow].outputs = outputs
     })
     return nextState
 }

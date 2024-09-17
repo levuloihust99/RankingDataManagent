@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useRef } from "react"
 import { v4 as uuidv4 } from "uuid"
 import { Button } from "semantic-ui-react"
 import { CodeBlock, dracula, github } from "react-code-blocks"
@@ -9,13 +9,14 @@ import { DndCard } from "./DndCard"
 import { VerticalSeparator } from "../../common/Separator"
 import { doCopy } from "../../../lib/utils"
 import "./style.css"
+import { updateOutputs } from "../../../api/crud"
+import { AlertContext } from "../../Alert/context"
 
 export const SampleEditor = ({ visible = true }) => {
-    const {
-        state: { dataset, activeRow },
-        dispatch: datasetDispatch,
-    } = React.useContext(DatasetContext)
-    const { input, metadata } = dataset[activeRow]
+    const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const stateRef = React.useRef(state)
+    const { dispatch: alertDispatch } = React.useContext(AlertContext)
+    const { input, metadata } = state.dataset[state.activeRow]
     const [liveMetadata, setLiveMetadata] = React.useState(metadata)
 
     const [liveInput, setLiveInput] = React.useState(input)
@@ -30,6 +31,10 @@ export const SampleEditor = ({ visible = true }) => {
     const remountDndCard = () => {
         setDndCardUID(uuidv4())
     }
+
+    React.useEffect(() => {
+        stateRef.current = state
+    }, [state])
 
     React.useEffect(() => {
         const task = { current: null }
@@ -49,6 +54,26 @@ export const SampleEditor = ({ visible = true }) => {
             if (textareaRef.current) {
                 observer.unobserve(textareaRef.current)
             }
+        }
+    }, [])
+
+    React.useEffect(() => {
+        const handler = (e) => {
+            if (stateRef.current.view !== "rank") {
+                return
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+                e.preventDefault()
+                const ex = stateRef.current.dataset[stateRef.current.activeRow]
+                save({
+                    sampleId: ex.sampleId,
+                    outputs: ex.outputs,
+                })
+            }
+        }
+        document.addEventListener("keydown", handler)
+        return () => {
+            document.removeEventListener("keydown", handler)
         }
     }, [])
 
@@ -104,6 +129,29 @@ export const SampleEditor = ({ visible = true }) => {
         const fullScrollHeight = textareaRef.current.scrollHeight
         textareaRef.current.style.height = fullScrollHeight + "px"
         setTextAreaHeight(fullScrollHeight)
+    }
+
+    const save = ({ sampleId, outputs }) => {
+        updateOutputs({ sampleId, outputs }).then(async (resp) => {
+            if (resp.status === 200) {
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "success",
+                        message: "Saved successfully!",
+                    },
+                })
+            } else {
+                const err = await resp.text()
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "failed",
+                        message: err,
+                    },
+                })
+            }
+        })
     }
 
     const renderOutputContainer = () => {
