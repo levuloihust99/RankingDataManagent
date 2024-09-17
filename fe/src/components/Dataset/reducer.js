@@ -15,6 +15,8 @@ export const datasetReducer = (state, action) => {
             return { ...state, activeRow: action.activeRow }
         case "UPDATE_DATASET":
             return { ...state, dataset: action.dataset }
+        case "ADD_OUTPUT":
+            return addOutput(state, action)
         case "SET_TABLE_VIEW":
             return { ...state, activeRow: -1, view: "table" }
         case "SET_RANK_VIEW":
@@ -115,6 +117,19 @@ function mutateMetadata(state, action) {
     // params: rowIdx, metadata
     const nextState = produce(state, (draft) => {
         draft.dataset[action.rowIdx].metadata = action.metadata
+    })
+    return nextState
+}
+
+function addOutput(state, action) {
+    const nextState = produce(state, (draft) => {
+        draft.dataset[draft.activeRow].outputs.push({
+            content: "",
+            metadata: {
+                generator: "placeholder",
+            },
+            id: uuidv4(),
+        })
     })
     return nextState
 }

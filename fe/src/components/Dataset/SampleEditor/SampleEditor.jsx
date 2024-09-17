@@ -110,6 +110,22 @@ export const SampleEditor = ({ visible = true }) => {
         return (
             <div className='sample-editor-output-container'>
                 <DndCard key={dndCardUID} remountDndCard={remountDndCard} />
+                <div
+                    style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "1.5em",
+                        margin: "20px 0",
+                    }}
+                >
+                    <FontAwesomeIcon
+                        className='action-icon'
+                        icon={icon({ name: "circle-plus" })}
+                        onClick={(e) => datasetDispatch({ type: "ADD_OUTPUT" })}
+                    />
+                </div>
             </div>
         )
     }
