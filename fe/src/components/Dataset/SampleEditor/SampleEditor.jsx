@@ -8,12 +8,13 @@ import { DatasetContext } from "../context"
 import { DndCard } from "./DndCard"
 import { VerticalSeparator } from "../../common/Separator"
 import { doCopy } from "../../../lib/utils"
-import "./style.css"
-import { updateOutputs } from "../../../api/crud"
+import { updateOutputs, annotate, unannotate } from "../../../api/crud"
 import { AlertContext } from "../../Alert/context"
+import "./style.css"
 
 export const SampleEditor = ({ visible = true }) => {
     const { state, dispatch: datasetDispatch } = React.useContext(DatasetContext)
+    const annotated = state.dataset[state.activeRow].annotated
     const stateRef = React.useRef(state)
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const { input, metadata } = state.dataset[state.activeRow]
@@ -139,6 +140,56 @@ export const SampleEditor = ({ visible = true }) => {
                     item: {
                         type: "success",
                         message: "Saved successfully!",
+                    },
+                })
+            } else {
+                const err = await resp.text()
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "failed",
+                        message: err,
+                    },
+                })
+            }
+        })
+    }
+
+    const doAnnotate = () => {
+        const sampleId = state.dataset[state.activeRow].sampleId
+        annotate({ sampleId }).then(async (resp) => {
+            if (resp.status === 200) {
+                datasetDispatch({ type: "ANNOTATE", sampleId })
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "success",
+                        message: "Annotated successfully!",
+                    },
+                })
+            } else {
+                const err = await resp.text()
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "failed",
+                        message: err,
+                    },
+                })
+            }
+        })
+    }
+
+    const doUnAnnotate = () => {
+        const sampleId = state.dataset[state.activeRow].sampleId
+        unannotate({ sampleId }).then(async (resp) => {
+            if (resp.status === 200) {
+                datasetDispatch({ type: "UNANNOTATE", sampleId })
+                alertDispatch({
+                    type: "ADD_MESSAGE",
+                    item: {
+                        type: "success",
+                        message: "Unannotated successfully!",
                     },
                 })
             } else {
@@ -328,6 +379,17 @@ export const SampleEditor = ({ visible = true }) => {
                             columnGap: "10px",
                         }}
                     >
+                        {annotated ? (
+                            <Button color='red' onClick={(e) => doUnAnnotate()}>
+                                <FontAwesomeIcon icon={icon({ name: "xmark" })} />
+                                <span style={{ marginLeft: "5px" }}>Unannotate</span>
+                            </Button>
+                        ) : (
+                            <Button color='teal' onClick={(e) => doAnnotate()}>
+                                <FontAwesomeIcon icon={icon({ name: "check-double" })} />
+                                <span style={{ marginLeft: "5px" }}>Annotate</span>
+                            </Button>
+                        )}
                         <Button color='teal' onClick={handleSwitchView}>
                             <FontAwesomeIcon icon={icon({ name: "sliders" })} />
                             <span style={{ marginLeft: "5px" }}>Switch</span>

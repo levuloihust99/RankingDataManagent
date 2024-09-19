@@ -21,6 +21,10 @@ export const datasetReducer = (state, action) => {
             return removeOutput(state, action)
         case "CHANGE_OUTPUT":
             return changeOutput(state, action)
+        case "ANNOTATE":
+            return doAnnotate(state, action)
+        case "UNANNOTATE":
+            return doUnAnnotate(state, action)
         case "SET_TABLE_VIEW":
             return { ...state, activeRow: -1, view: "table" }
         case "SET_RANK_VIEW":
@@ -152,6 +156,38 @@ function removeOutput(state, action) {
         let outputs = draft.dataset[draft.activeRow].outputs
         outputs = [...outputs.slice(0, action.outputIdx), ...outputs.slice(action.outputIdx + 1)]
         draft.dataset[draft.activeRow].outputs = outputs
+    })
+    return nextState
+}
+
+function doAnnotate(state, action) {
+    const nextState = produce(state, (draft) => {
+        const item = draft.dataset[draft.activeRow]
+        if (item.sampleId !== action.sampleId) {
+            for (const loopItem of draft.dataset) {
+                if (loopItem.sampleId === action.sampleId) {
+                    loopItem.annotated = true
+                }
+            }
+        } else {
+            item.annotated = true
+        }
+    })
+    return nextState
+}
+
+function doUnAnnotate(state, action) {
+    const nextState = produce(state, (draft) => {
+        const item = draft.dataset[draft.activeRow]
+        if (item.sampleId !== action.sampleId) {
+            for (const loopItem of draft.dataset) {
+                if (loopItem.sampleId === action.sampleId) {
+                    loopItem.annotated = false
+                }
+            }
+        } else {
+            item.annotated = false
+        }
     })
     return nextState
 }

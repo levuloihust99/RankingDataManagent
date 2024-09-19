@@ -236,3 +236,35 @@ app.post("/diff", async (req, res) => {
     }
     res.send(resp.data)
 })
+
+app.post("/annotate", async (req, res) => {
+    console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} POST /annotate`)
+    try {
+        await RankingSampleCollection.findOneAndUpdate(
+            {
+                sampleId: req.body.sampleId
+            },
+            { $set: { annotated: true } }
+        )
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
+})
+
+app.post("/unannotate", async (req, res) => {
+    console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} POST /annotate`)
+    try {
+        await RankingSampleCollection.findOneAndUpdate(
+            {
+                sampleId: req.body.sampleId
+            },
+            { $set: { annotated: false } }
+        )
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
+})
