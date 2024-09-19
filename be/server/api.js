@@ -268,3 +268,39 @@ app.post("/unannotate", async (req, res) => {
         res.sendStatus(500)
     }
 })
+
+app.post("/call_cortex", async (req, res) => {
+    console.log(`${moment().format("YYYY-MM-DD HH:mm:ss")} POST /call_cortex`)
+    const endpoint = "http://localhost:1337/v1/chat/completions"
+    let resp
+    try {
+        resp = await axios.request({
+            method: "POST",
+            url: endpoint,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: {
+                model: "bartowski/gemma-2-2b-it-GGUF",
+                messages: [
+                    {
+                        role: "user",
+                        content: req.body.text
+                    }
+                ]
+            }
+        })
+        const respData = resp.data
+        const completion = respData.choices[0].message.content
+        res.send(completion)
+    } catch (err) {
+        console.log(err)
+        const { response: { data: errorObj = null } = {} } = err
+        if (errorObj) {
+            res.status(e.response.status).send(errorObj)
+        } else {
+            res.sendStatus(500)
+        }
+        return
+    }
+})

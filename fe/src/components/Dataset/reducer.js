@@ -17,6 +17,8 @@ export const datasetReducer = (state, action) => {
             return { ...state, dataset: action.dataset }
         case "ADD_OUTPUT":
             return addOutput(state, action)
+        case "ADD_OUTPUT_WITH_CONTENT":
+            return addOutputWithContent(state, action)
         case "REMOVE_OUTPUT":
             return removeOutput(state, action)
         case "CHANGE_OUTPUT":
@@ -135,6 +137,22 @@ function addOutput(state, action) {
             content: "",
             metadata: {
                 generator: "placeholder",
+            },
+            id: uuidv4(),
+        })
+    })
+    return nextState
+}
+
+function addOutputWithContent(state, action) {
+    const nextState = produce(state, (draft) => {
+        if (action.sampleId !== draft.dataset[draft.activeRow].sampleId) {
+            return
+        }
+        draft.dataset[draft.activeRow].outputs.push({
+            content: action.content,
+            metadata: {
+                generator: "gemma-2-2b-it-Q4_K_M-gguf",
             },
             id: uuidv4(),
         })

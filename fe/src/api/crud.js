@@ -44,3 +44,14 @@ export const unannotate = async ({ sampleId }) => {
         },
     })
 }
+
+export const callCortex = async ({ text }) => {
+    const endpoint = urlJoin(BACKEND_URL, "/call_cortex")
+    return await fetch(endpoint, {
+        method: "POST",
+        body: JSON.stringify({ text }),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
