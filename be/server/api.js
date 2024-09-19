@@ -121,7 +121,7 @@ app.post("/update_comparisons", async (req, res) => {
 
 app.post("/update_outputs", async (req, res) => {
     console.log(
-        `${moment().format("YYYY-MM-DD HH:mm:ss")} POST /update_comparisons`
+        `${moment().format("YYYY-MM-DD HH:mm:ss")} POST /update_outputs`
     )
     const { sampleId, outputs } = req.body
     try {

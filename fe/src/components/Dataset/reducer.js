@@ -147,6 +147,7 @@ function changeOutput(state, action) {
         const output = draft.dataset[draft.activeRow].outputs[action.outputIdx]
         output.content = action.content
         output.metadata.generator = action.generator
+        output.metadata.comment = action.comment
     })
     return nextState
 }

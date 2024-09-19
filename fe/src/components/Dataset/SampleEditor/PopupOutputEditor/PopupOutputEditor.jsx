@@ -1,50 +1,23 @@
 import React, { useContext } from "react"
 import { icon } from "@fortawesome/fontawesome-svg-core/import.macro"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { CodeBlock, dracula, github } from "react-code-blocks"
 import { HorizontalSeparator } from "../../../common/Separator"
 import { DatasetContext } from "../../context"
 import { doCopy } from "../../../../lib/utils"
 import { PopupContext } from "../DndCard/context"
+import { AutofitTextArea } from "../../../common/AutofitTextArea"
 import "./style.css"
 
 export const PopupOutputEditor = ({ outputIdx }) => {
-    const [contentHeight, setContentHeight] = React.useState("auto")
     const { popupState, popupDispatch } = React.useContext(PopupContext)
-    const { dispatch } = useContext(DatasetContext)
-    const inputRef = React.useRef()
-
-    React.useEffect(() => {
-        const task = { current: null }
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                if (entry.target === inputRef.current) {
-                    clearTimeout(task.current)
-                    task.current = setTimeout(() => {
-                        fitTextArea()
-                    }, 100)
-                }
-            }
-        })
-        observer.observe(inputRef.current)
-        return () => {
-            if (inputRef.current) {
-                observer.unobserve(inputRef.current)
-            }
-        }
-    }, [])
-
-    React.useEffect(() => {
-        fitTextArea()
-    }, [popupState.liveContent])
-
-    const handleChangeContent = (e) => {
-        popupDispatch({ type: "SET_LIVE_CONTENT", content: e.target.value })
-    }
+    const { dispatch: datasetDispatch } = useContext(DatasetContext)
+    const commentRef = React.useRef()
 
     const handleClickEditContent = (e) => {
         popupDispatch({ type: "CLICK_EDIT" })
-        inputRef.current.select()
+        if (commentRef.current) {
+            commentRef.current.select()
+        }
     }
 
     const handleCancelEdit = (e) => {
@@ -55,11 +28,12 @@ export const PopupOutputEditor = ({ outputIdx }) => {
         popupDispatch({ type: "CONFIRM_EDIT" })
 
         // dispatch action
-        dispatch({
+        datasetDispatch({
             type: "CHANGE_OUTPUT",
             outputIdx,
             content: popupState.liveContent,
             generator: popupState.liveGenerator,
+            comment: popupState.liveComment,
         })
     }
 
@@ -68,14 +42,7 @@ export const PopupOutputEditor = ({ outputIdx }) => {
     }
 
     const handleRemoveOutput = (e) => {
-        dispatch({ type: "REMOVE_OUTPUT", outputIdx })
-    }
-
-    const fitTextArea = () => {
-        inputRef.current.style.height = "auto"
-        const fullScrollHeight = inputRef.current.scrollHeight
-        inputRef.current.style.height = fullScrollHeight + "px"
-        setContentHeight(fullScrollHeight)
+        datasetDispatch({ type: "REMOVE_OUTPUT", outputIdx })
     }
 
     return (
@@ -148,34 +115,34 @@ export const PopupOutputEditor = ({ outputIdx }) => {
                         width: "100%",
                     }}
                 >
-                    <div
-                        style={{
-                            height: `${contentHeight}px`,
-                        }}
-                    >
-                        <textarea
-                            className='output-content-area'
-                            ref={inputRef}
-                            readOnly={!popupState.onEdit}
-                            value={popupState.liveContent}
-                            onChange={handleChangeContent}
-                            style={{
-                                padding: 0,
-                                overflow: "hidden",
-                                color: "initial"
-                            }}
-                        ></textarea>
-                    </div>
+                    <AutofitTextArea
+                        content={popupState.liveContent}
+                        onEdit={popupState.onEdit}
+                        onChange={(e) =>
+                            popupDispatch({ type: "SET_LIVE_CONTENT", content: e.target.value })
+                        }
+                    />
                 </div>
             </div>
-            {/* <HorizontalSeparator width='10px' />
-            <div>
-                <CodeBlock
-                    text={JSON.stringify({ generator: popupState.liveGenerator }, null, 4)}
-                    language='json'
-                    theme={github}
-                />
-            </div> */}
+            {true && (
+                <>
+                    <HorizontalSeparator height='10px' />
+                    <div>
+                        <span style={{ fontWeight: "bold", fontSize: "1.25em" }}>Comment</span>
+                    </div>
+                    <HorizontalSeparator height='10px' />
+                    <div className='rounded-corner-container' style={{ padding: "10px" }}>
+                        <AutofitTextArea
+                            content={popupState.liveComment}
+                            onEdit={popupState.onEdit}
+                            onChange={(e) =>
+                                popupDispatch({ type: "SET_LIVE_COMMENT", comment: e.target.value })
+                            }
+                            eRef={commentRef}
+                        />
+                    </div>
+                </>
+            )}
         </>
     )
 }

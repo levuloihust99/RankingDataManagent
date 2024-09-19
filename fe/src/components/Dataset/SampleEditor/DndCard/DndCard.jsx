@@ -54,7 +54,6 @@ export const DndCard = ({ remountDndCard }) => {
                     return (
                         <CardItem
                             metadata={item.metadata}
-                            score={item.score}
                             content={item.content}
                             key={item.id}
                             uniqueId={item.id}
@@ -71,10 +70,20 @@ const popupReducer = (state, action) => {
     switch (action.type) {
         case "NEW_CONTENT":
             return { ...state, liveContent: action.content, prevLiveContent: action.content }
+        case "NEW_COMMENT":
+            return { ...state, liveComment: action.comment }
+        case "NEW_GENERATOR":
+            return {
+                ...state,
+                liveGenerator: action.generator,
+                prevLiveGenerator: action.generator,
+            }
         case "SET_LIVE_CONTENT":
             return { ...state, liveContent: action.content }
         case "SET_LIVE_GENERATOR":
             return { ...state, liveGenerator: action.generator }
+        case "SET_LIVE_COMMENT":
+            return { ...state, liveComment: action.comment }
         case "CLICK_EDIT":
             return { ...state, onEdit: true }
         case "CANCEL_EDIT":
@@ -82,6 +91,7 @@ const popupReducer = (state, action) => {
                 ...state,
                 liveContent: state.prevLiveContent,
                 liveGenerator: state.prevLiveGenerator,
+                liveComment: state.prevLiveComment,
                 onEdit: false,
             }
         case "CONFIRM_EDIT":
@@ -89,20 +99,15 @@ const popupReducer = (state, action) => {
                 ...state,
                 prevLiveContent: state.liveContent,
                 prevLiveGenerator: state.liveGenerator,
+                prevLiveComment: state.liveComment,
                 onEdit: false,
-            }
-        case "NEW_GENERATOR":
-            return {
-                ...state,
-                liveGenerator: action.generator,
-                prevLiveGenerator: action.generator,
             }
         default:
             return state
     }
 }
 
-const CardItem = ({ uniqueId, metadata, score, content, idx }) => {
+const CardItem = ({ uniqueId, metadata, content, idx }) => {
     const [onEdit, setOnEdit] = React.useState(false)
     const ref = React.useRef()
 
@@ -123,6 +128,8 @@ const CardItem = ({ uniqueId, metadata, score, content, idx }) => {
         prevLiveContent: content,
         liveGenerator: metadata.generator,
         prevLiveGenerator: metadata.generator,
+        liveComment: metadata.comment || "",
+        prevLiveComment: metadata.comment || "",
     })
 
     React.useEffect(() => {
@@ -132,6 +139,10 @@ const CardItem = ({ uniqueId, metadata, score, content, idx }) => {
     React.useEffect(() => {
         popupDispatch({ type: "NEW_GENERATOR", generator: metadata.generator })
     }, [metadata.generator])
+
+    React.useEffect(() => {
+        popupDispatch({ type: "NEW_COMMENT", comment: metadata.comment })
+    }, [metadata.comment])
 
     const handleChangeGenerator = (e) => {
         popupDispatch({ type: "SET_LIVE_GENERATOR", generator: e.target.value })
