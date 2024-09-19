@@ -168,14 +168,14 @@ export const PopupOutputEditor = ({ outputIdx }) => {
                     </div>
                 </div>
             </div>
-            <HorizontalSeparator width='10px' />
+            {/* <HorizontalSeparator width='10px' />
             <div>
                 <CodeBlock
                     text={JSON.stringify({ generator: popupState.liveGenerator }, null, 4)}
                     language='json'
                     theme={github}
                 />
-            </div>
+            </div> */}
         </>
     )
 }

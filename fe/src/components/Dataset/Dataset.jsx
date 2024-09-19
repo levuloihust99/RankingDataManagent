@@ -198,8 +198,8 @@ const DataProvider = ({ dataset, initState = null }) => {
     const { dispatch: alertDispatch } = React.useContext(AlertContext)
     const [state, dispatch] = React.useReducer(datasetReducer, {
         dataset,
-        activeRow: initState?.activeRow == null ? -1 : initState.activeRow,
-        view: initState?.view || "table",
+        activeRow: initState?.activeRow == null ? 0 : initState.activeRow,
+        view: initState?.view || "rank",
     })
     const [workingModeState, workingModeDispatch] = React.useReducer(workingModeReducer, {
         workingMode: initState?.workingMode || "normal",

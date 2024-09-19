@@ -57,6 +57,7 @@ export const DndCard = ({ remountDndCard }) => {
                             score={item.score}
                             content={item.content}
                             key={item.id}
+                            uniqueId={item.id}
                             idx={idx}
                         />
                     )
@@ -101,7 +102,7 @@ const popupReducer = (state, action) => {
     }
 }
 
-const CardItem = ({ metadata, score, content, idx }) => {
+const CardItem = ({ uniqueId, metadata, score, content, idx }) => {
     const [onEdit, setOnEdit] = React.useState(false)
     const ref = React.useRef()
 
@@ -275,14 +276,14 @@ const CardItem = ({ metadata, score, content, idx }) => {
                 }}
             >
                 <span
-                    title={metadata.generator || "default"}
+                    title={uniqueId || "default"}
                     style={{
                         textOverflow: "ellipsis",
                         overflow: "hidden",
                         whiteSpace: "nowrap",
                     }}
                 >
-                    {metadata.generator || "default"}
+                    {uniqueId || "default"}
                 </span>
             </div>
             <div
@@ -297,15 +298,15 @@ const CardItem = ({ metadata, score, content, idx }) => {
             <PopupContext.Provider value={{ popupState, popupDispatch }}>
                 <Modal open={onEdit} onClose={(e) => setOnEdit(false)}>
                     <Header>
-                        {popupState.onEdit ? (
+                        {false ? (
                             <Input
-                                value={popupState.liveGenerator}
+                                value={uniqueId}
                                 readOnly={!popupState.onEdit}
                                 onChange={handleChangeGenerator}
                                 style={{ width: "100%" }}
                             />
                         ) : (
-                            <span>{popupState.liveGenerator}</span>
+                            <span>{uniqueId}</span>
                         )}
                     </Header>
                     <Modal.Content>
