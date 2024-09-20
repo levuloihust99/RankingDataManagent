@@ -188,7 +188,8 @@ export const SampleEditor = ({ visible = true }) => {
 
     const doAnnotate = () => {
         const sampleId = state.dataset[state.activeRow].sampleId
-        annotate({ sampleId }).then(async (resp) => {
+        const outputs = state.dataset[state.activeRow].outputs
+        annotate({ sampleId, outputs }).then(async (resp) => {
             if (resp.status === 200) {
                 datasetDispatch({ type: "ANNOTATE", sampleId })
                 alertDispatch({

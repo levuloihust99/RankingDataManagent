@@ -23,11 +23,11 @@ export const updateOutputs = async ({ sampleId, outputs }) => {
     })
 }
 
-export const annotate = async ({ sampleId }) => {
+export const annotate = async ({ sampleId, outputs }) => {
     const endpoint = urlJoin(BACKEND_URL, "/annotate")
     return await fetch(endpoint, {
         method: "POST",
-        body: JSON.stringify({ sampleId }),
+        body: JSON.stringify({ sampleId, outputs }),
         headers: {
             "Content-Type": "application/json",
         },

@@ -244,7 +244,7 @@ app.post("/annotate", async (req, res) => {
             {
                 sampleId: req.body.sampleId
             },
-            { $set: { annotated: true } }
+            { $set: { annotated: true, outputs: req.body.outputs } }
         )
         res.sendStatus(200)
     } catch (err) {
