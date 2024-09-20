@@ -10,6 +10,7 @@ import { VerticalSeparator } from "../../common/Separator"
 import { doCopy } from "../../../lib/utils"
 import { updateOutputs, annotate, unannotate, callCortex } from "../../../api/crud"
 import { AlertContext } from "../../Alert/context"
+import { getRankingPrompt } from "../../../lib/prompting"
 import "./style.css"
 
 export const SampleEditor = ({ visible = true }) => {
@@ -153,6 +154,12 @@ export const SampleEditor = ({ visible = true }) => {
 
     const handleGeneratePrompt = (e) => {
         const prompt = `Viết một đoạn văn dài tối đa 3 câu để tóm tắt văn bản sau đây:\n"""\n${liveInput}\n"""`
+        doCopy(prompt)
+    }
+
+    const handleClickPrompting = (e) => {
+        const { outputs } = state.dataset[state.activeRow]
+        const prompt = getRankingPrompt(liveInput, outputs)
         doCopy(prompt)
     }
 
@@ -436,6 +443,10 @@ export const SampleEditor = ({ visible = true }) => {
                         <Button color='teal' onClick={handleSwitchView}>
                             <FontAwesomeIcon icon={icon({ name: "sliders" })} />
                             <span style={{ marginLeft: "5px" }}>Switch</span>
+                        </Button>
+                        <Button color='teal' onClick={handleClickPrompting}>
+                            <FontAwesomeIcon icon={icon({ name: "copy", style: "regular" })} />
+                            <span style={{ marginLeft: "5px" }}>Prompting</span>
                         </Button>
                     </div>
                 </div>
