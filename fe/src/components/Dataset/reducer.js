@@ -23,6 +23,8 @@ export const datasetReducer = (state, action) => {
             return removeOutput(state, action)
         case "CHANGE_OUTPUT":
             return changeOutput(state, action)
+        case "UPDATE_SCORE":
+            return updateScore(state, action)
         case "ANNOTATE":
             return doAnnotate(state, action)
         case "UNANNOTATE":
@@ -166,6 +168,14 @@ function changeOutput(state, action) {
         output.content = action.content
         output.metadata.generator = action.generator
         output.metadata.comment = action.comment
+    })
+    return nextState
+}
+
+function updateScore(state, action) {
+    const nextState = produce(state, (draft) => {
+        const output = draft.dataset[draft.activeRow].outputs[action.outputIdx]
+        output.score = action.score
     })
     return nextState
 }

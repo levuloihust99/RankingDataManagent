@@ -55,6 +55,7 @@ export const DndCard = ({ remountDndCard }) => {
                         <CardItem
                             metadata={item.metadata}
                             content={item.content}
+                            score={item.score}
                             key={item.id}
                             uniqueId={item.id}
                             idx={idx}
@@ -78,12 +79,16 @@ const popupReducer = (state, action) => {
                 liveGenerator: action.generator,
                 prevLiveGenerator: action.generator,
             }
+        case "NEW_SCORE":
+            return { ...state, liveScore: action.score }
         case "SET_LIVE_CONTENT":
             return { ...state, liveContent: action.content }
         case "SET_LIVE_GENERATOR":
             return { ...state, liveGenerator: action.generator }
         case "SET_LIVE_COMMENT":
             return { ...state, liveComment: action.comment }
+        case "SET_LIVE_SCORE":
+            return { ...state, liveScore: action.score }
         case "CLICK_EDIT":
             return { ...state, onEdit: true }
         case "CANCEL_EDIT":
@@ -107,9 +112,10 @@ const popupReducer = (state, action) => {
     }
 }
 
-const CardItem = ({ uniqueId, metadata, content, idx }) => {
+const CardItem = ({ uniqueId, metadata, score, content, idx }) => {
     const [onEdit, setOnEdit] = React.useState(false)
     const ref = React.useRef()
+    const sliderRef = React.useRef()
 
     const {
         containerRef,
@@ -130,6 +136,7 @@ const CardItem = ({ uniqueId, metadata, content, idx }) => {
         prevLiveGenerator: metadata.generator,
         liveComment: metadata.comment || "",
         prevLiveComment: metadata.comment || "",
+        liveScore: score,
     })
 
     React.useEffect(() => {
@@ -144,8 +151,22 @@ const CardItem = ({ uniqueId, metadata, content, idx }) => {
         popupDispatch({ type: "NEW_COMMENT", comment: metadata.comment })
     }, [metadata.comment])
 
+    React.useEffect(() => {
+        popupDispatch({ type: "NEW_SCORE", score })
+    }, [score])
+
+    React.useEffect(() => {
+        sliderRef.current.onmousedown = function (e) {
+            e.stopPropagation()
+        }
+    }, [])
+
     const handleChangeGenerator = (e) => {
         popupDispatch({ type: "SET_LIVE_GENERATOR", generator: e.target.value })
+    }
+
+    const handleChangeScore = (e) => {
+        datasetDispatch({ type: "UPDATE_SCORE", score: parseInt(e.target.value), outputIdx: idx })
     }
 
     React.useEffect(() => {
@@ -305,6 +326,33 @@ const CardItem = ({ uniqueId, metadata, content, idx }) => {
                 }}
             >
                 {content}
+            </div>
+            <div
+                className='score-slider'
+                style={{ position: "relative", width: "80%", minWidth: "300px" }}
+                onClick={(e) => e.stopPropagation()}
+                ref={sliderRef}
+            >
+                <input
+                    type='range'
+                    min={1}
+                    max={10}
+                    className='slider'
+                    score={score}
+                    onChange={handleChangeScore}
+                />
+                <div className='label-container'>
+                    <div className='label-slider'>1</div>
+                    <div className='label-slider'>2</div>
+                    <div className='label-slider'>3</div>
+                    <div className='label-slider'>4</div>
+                    <div className='label-slider'>5</div>
+                    <div className='label-slider'>6</div>
+                    <div className='label-slider'>7</div>
+                    <div className='label-slider'>8</div>
+                    <div className='label-slider'>9</div>
+                    <div className='label-slider'>10</div>
+                </div>
             </div>
             <PopupContext.Provider value={{ popupState, popupDispatch }}>
                 <Modal open={onEdit} onClose={(e) => setOnEdit(false)}>
