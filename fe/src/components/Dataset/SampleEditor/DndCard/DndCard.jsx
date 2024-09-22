@@ -338,7 +338,7 @@ const CardItem = ({ uniqueId, metadata, score, content, idx }) => {
                     min={1}
                     max={10}
                     className='slider'
-                    score={score}
+                    value={score}
                     onChange={handleChangeScore}
                 />
                 <div className='label-container'>
