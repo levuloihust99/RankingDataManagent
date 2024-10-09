@@ -546,7 +546,7 @@ const Card = ({
     }
 
     const renderCardContent = () => {
-        if (compMetadata.type !== "Non-conciseness") return <CardTextAreaContent />
+        if (compMetadata?.type !== "Non-conciseness") return <CardTextAreaContent />
         if (workingModeState.workingMode === "normal") return <CardTextAreaContent />
         if (workingModeState.workingMode === "diff") {
             const { diff = null } = metadata || {}
