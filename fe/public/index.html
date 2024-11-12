@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
-    <!--
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="Web site created using create-react-app" />
+        <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+        <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
+        <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+        <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -24,12 +21,235 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>Ranking Data Management</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
+        <title>Ranking Data Management</title>
+        <style>
+            @media print {
+                /* Set custom page size */
+                @page {
+                    size: 1680px 1764px; /* Custom width (210mm) and height (297mm), adjust as needed */
+                    margin: 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+        <script
+            src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            function hideElements() {
+                $("#main-content > div > div.min-width-1000px").hide()
+                $("#sample-editor > div:nth-child(1)").hide()
+                $("#sample-editor > div:nth-child(2)").hide()
+                $("#nav-bar").css({ "box-shadow": "none" })
+                $(
+                    "#sample-editor > div.sample-editor-main-area > div.sample-editor-output-container > div.dnd-card-container"
+                )
+                    .children()
+                    .each(function (index, e) {
+                        if (index !== 7) {
+                            $(this).hide()
+                        }
+                    })
+                $("#sample-editor > div:nth-child(4)").hide()
+                $("#sample-editor > div:nth-child(5)").hide()
+                $(
+                    "#sample-editor > div.sample-editor-main-area > div.sample-editor-output-container > div:nth-child(2)"
+                ).hide()
+                const html = `Ngày <span style="color: red; font-weight: bold;">[25/2]</span> , TAND TP. Đà Nẵng tuyên phạt <span style="color: red; font-weight: bold;">[Hồ Xuân Huy]</span> ( SN <span style="color: red; font-weight: bold;">[1994]</span> ) , ngụ quận Hải Châu , <span style="color: red; font-weight: bold">[12 năm tù]</span> về tội Lừa đảo chiếm đoạt tài sản .`
+                $(
+                    "#sample-editor > div.sample-editor-main-area > div.sample-editor-output-container > div.dnd-card-container > div:nth-child(8) > div:nth-child(2)"
+                ).html(html)
+                $(".score-slider").hide()
+            }
+
+            function zoomIn() {
+                $("#sample-editor > div.sample-editor-main-area").css({ zoom: 1.5 })
+            }
+
+            function hideElements2() {
+                $("#main-content > div > div.min-width-1000px").hide()
+                $("#sample-editor > div:nth-child(1)").hide()
+                $("#sample-editor > div:nth-child(2)").hide()
+                $("#nav-bar").css({ "box-shadow": "none" })
+                $("#sample-editor > div:nth-child(4)").hide()
+                $("#sample-editor > div:nth-child(5)").hide()
+                $(
+                    "#sample-editor > div.sample-editor-main-area > div.sample-editor-output-container > div:nth-child(2)"
+                ).hide()
+                $(".score-slider").hide()
+                const selector =
+                    "#sample-editor > div.sample-editor-main-area > div.rounded-corner-container.column-flex-container.sample-editor-input-container > div:nth-child(1)"
+                $(selector).html("Article body")
+                $(selector).css({
+                    padding: "4px 10px",
+                    "border-top-left-radius": "8px",
+                    "border-top-right-radius": "8px",
+                    "background-color": "rgb(222, 222, 222)",
+                })
+            }
+
+            function hideInComparisons() {
+                $("#nav-button").click()
+                $("#nav-bar").css({ "box-shadow": "none" })
+                $("#main-content > div > div.min-width-1000px").hide()
+                $(
+                    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > div > div:nth-child(1)"
+                ).hide()
+                $(
+                    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > div > div.header-block"
+                ).hide()
+                $(
+                    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > table > thead > tr"
+                ).hide()
+                $(
+                    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > table > tbody"
+                )
+                    .children()
+                    .each(function (index) {
+                        if (index > 1) {
+                            $(this).hide()
+                        }
+                    })
+                $('.action-icon[data-icon="plus"]').parent().hide()
+            }
+
+            function createSVGLine(x1, y1, x2, y2) {
+                var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+                svg.setAttribute("width", "500")
+                svg.setAttribute("height", "200")
+                svg.setAttribute("style", "border:1px solid #000000")
+                var line = document.createElementNS("http://www.w3.org/2000/svg", "line")
+                line.setAttribute("x1", x1)
+                line.setAttribute("y1", y1)
+                line.setAttribute("x2", x2)
+                line.setAttribute("y2", y2)
+                line.setAttribute("stroke", "blue")
+                line.setAttribute("stroke-width", "2")
+                svg.appendChild(line)
+                document.body.appendChild(svg)
+            }
+
+            function draw(selector) {
+                drawBoundingBox(selector)
+                drawLabel()
+                drawConnectLine()
+            }
+
+            function drawBoundingBox(selector) {
+                const el = $(selector).get(0)
+                const box = document.createElement("div")
+                box.style.position = "fixed"
+                const rect = el.getBoundingClientRect()
+                box.style.left = rect.left - 10 + "px"
+                box.style.top = rect.top - 10 + "px"
+                box.style.width = rect.width + 20 + "px"
+                box.style.height = rect.height + 20 + "px"
+                box.style.border = "2px solid blue"
+                box.style.zIndex = el.style.zIndex + 1
+                box.setAttribute("id", "bbox")
+                document.body.appendChild(box)
+            }
+
+            function drawLabel() {
+                const el = document.createElement("div")
+                el.className = "rounded-corner-container"
+                el.style.padding = "15px"
+                el.style.fontWeight = "bold"
+                el.style.fontSize = "2em"
+                el.innerHTML = "Correct summary"
+                const bbox = document.getElementById("bbox")
+                el.style.position = "fixed"
+                const rect = bbox.getBoundingClientRect()
+                el.style.top = rect.top + rect.height + 50 + "px"
+                el.style.left = rect.left + rect.width / 2 + "px"
+                el.style.transform = "translateX(-50%)"
+                el.setAttribute("id", "labelOfBBox")
+                document.body.appendChild(el)
+            }
+
+            function removeBBoxAndLabel() {
+                const e = document.getElementById("bbox")
+                document.body.removeChild(e)
+                const f = document.getElementById("labelOfBBox")
+                document.body.removeChild(f)
+                const g = document.getElementById("svgDraw")
+                document.body.removeChild(g)
+            }
+
+            function drawConnectLine() {
+                const bbox = document.getElementById("bbox")
+                const label = document.getElementById("labelOfBBox")
+                const bboxRect = bbox.getBoundingClientRect()
+                const x1 = (bboxRect.left + bboxRect.right) / 2
+                const y1 = bboxRect.bottom
+                const labelRect = label.getBoundingClientRect()
+                const y2 = labelRect.top
+                var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+                const svgWidth = labelRect.width
+                const svgHeight = labelRect.top - bboxRect.bottom
+                svg.setAttribute("width", `${svgWidth}`)
+                svg.setAttribute("height", `${svgHeight}`)
+                <!-- svg.setAttribute("style", "border:3px solid #000000"); -->
+                svg.style.position = "fixed"
+                svg.style.top = y1 + "px"
+                svg.style.left = x1 + "px"
+                svg.style.transform = "translateX(-50%)"
+                const svgX1 = svgWidth / 2
+                const svgY1 = 0
+                const svgY2 = svgHeight
+                var line = document.createElementNS("http://www.w3.org/2000/svg", "line")
+                line.setAttribute("x1", svgX1)
+                line.setAttribute("y1", svgY1)
+                line.setAttribute("x2", svgX1)
+                line.setAttribute("y2", svgY2)
+                line.setAttribute("stroke", "blue")
+                line.setAttribute("stroke-width", "2")
+                svg.appendChild(line)
+                svg.setAttribute("id", "svgDraw")
+                document.body.appendChild(svg)
+            }
+
+            function hideComparisions2() {
+                $("#nav-button").click()
+                $("#nav-bar").css({ "box-shadow": "none" })
+                $("#main-content > div > div.min-width-1000px").hide()
+                $(
+                    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > div > div:nth-child(1)"
+                ).hide()
+                $(
+                    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > div > div.header-block"
+                ).hide()
+                //$(
+                //    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > table > thead > tr"
+                //).hide()
+                $(
+                    "#main-content > div > div:nth-child(2) > div > div.comparisons-container > table > tbody"
+                )
+                    .children()
+                    .each(function (index) {
+                        if (!(index === 6 || index === 8 || index === 10)) {
+                            $(this).hide()
+                        }
+                    })
+                $('.action-icon[data-icon="plus"]').parent().hide()
+            }
+
+            function hiding() {
+                $("#nav-button").click()
+                $("#nav-bar").css({ "box-shadow": "none" })
+                $("#main-content > div > div.min-width-1000px").hide()
+            }
+
+            function _zoomIn() {
+                $("#playground").css({ zoom: 1.5 })
+            }
+        </script>
+        <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -38,6 +258,5 @@
 
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+    --></body>
 </html>
