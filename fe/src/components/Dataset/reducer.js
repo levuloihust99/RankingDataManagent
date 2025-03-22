@@ -342,7 +342,11 @@ function formatNegatives(state, action) {
         const comparison = draft.dataset[rowIdx].comparisons[comparisonIdx]
         let i = comparison.negatives.length
         for (const item of comparison.negatives) {
-            item.metadata.generator = `Non-${criterion}-${i}`
+            if (criterion === "incorrectness") {
+                item.metadata.generator = `Incorrectness-${i}`
+            } else {
+                item.metadata.generator = `Non-${criterion}-${i}`
+            }
             i -= 1
         }
     })

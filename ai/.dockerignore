@@ -4,3 +4,6 @@
 tests/
 .vscode/
 __pycache__/
+assets/
+jobs/
+.gitignore

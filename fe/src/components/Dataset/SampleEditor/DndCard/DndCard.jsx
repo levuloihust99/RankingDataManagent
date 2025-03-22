@@ -308,14 +308,14 @@ const CardItem = ({ uniqueId, metadata, score, content, idx }) => {
                 }}
             >
                 <span
-                    title={uniqueId || "default"}
+                    title={metadata.generator | uniqueId || "default"}
                     style={{
                         textOverflow: "ellipsis",
                         overflow: "hidden",
                         whiteSpace: "nowrap",
                     }}
                 >
-                    {uniqueId || "default"}
+                    {metadata.generator || uniqueId || "default"}
                 </span>
             </div>
             <div
